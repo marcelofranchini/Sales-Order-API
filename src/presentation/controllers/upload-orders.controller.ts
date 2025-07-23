@@ -6,11 +6,29 @@ export class UploadOrdersController implements ControllerInterface {
   constructor(private readonly uploadOrdersUseCase: UploadOrdersUseCase) {}
 
   async handle(request: HttpRequest): Promise<HttpResponse> {
-    const file = request.file;
-    const result = await this.uploadOrdersUseCase.execute(file!);
-    return {
-      statusCode: 200,
-      body: result,
-    };
+    try {
+      const file = request.file;
+      const result = await this.uploadOrdersUseCase.execute(file!);
+      return {
+        statusCode: 200,
+        body: result,
+      };
+    } catch (error) {
+      if (error instanceof Error) {
+        if (
+          error.message.includes('Nenhum arquivo foi enviado') ||
+          error.message.includes('Apenas arquivos TXT são permitidos')
+        ) {
+          return {
+            statusCode: 400,
+            body: { error: error.message },
+          };
+        }
+      }
+      return {
+        statusCode: 500,
+        body: { error: 'Internal server error' },
+      };
+    }
   }
 }

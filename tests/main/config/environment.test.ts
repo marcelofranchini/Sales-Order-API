@@ -1,4 +1,4 @@
-import { Environment, EnvironmentUtils } from '@/main/config/environment';
+import { Environment, isDevelopment, isProduction } from '@/main/config/environment';
 
 describe('Environment', () => {
   const originalEnv = process.env;
@@ -14,16 +14,16 @@ describe('Environment', () => {
 
   describe('Environment variables', () => {
     it('should load environment variables correctly', () => {
-      process.env.MONGO_DB = 'mongodb://test:27017/test';
+      process.env.MONGODB_URI = 'mongodb://test:27017/test';
       process.env.PORT = '3001';
       process.env.NODE_ENV = 'test';
-      process.env.APP_NAME = 'Test App';
-      process.env.APP_VERSION = '2.0.0';
+      process.env.npm_package_name = 'Test App';
+      process.env.npm_package_version = '2.0.0';
 
       jest.resetModules();
       const { Environment } = require('@/main/config/environment');
 
-      expect(Environment.MONGO_DB).toBe('mongodb://test:27017/test');
+      expect(Environment.MONGODB_URI).toBe('mongodb://test:27017/test');
       expect(Environment.PORT).toBe(3001);
       expect(Environment.NODE_ENV).toBe('test');
       expect(Environment.APP_NAME).toBe('Test App');
@@ -31,16 +31,20 @@ describe('Environment', () => {
     });
 
     it('should use default values when environment variables are not set', () => {
-      delete process.env.MONGO_DB;
+      delete process.env.MONGODB_URI;
       delete process.env.PORT;
       delete process.env.NODE_ENV;
-      delete process.env.APP_NAME;
-      delete process.env.APP_VERSION;
+      delete process.env.npm_package_name;
+      delete process.env.npm_package_version;
 
-      expect(() => {
-        jest.resetModules();
-        require('@/main/config/environment');
-      }).toThrow('MONGO_DB environment variable is not defined');
+      jest.resetModules();
+      const { Environment } = require('@/main/config/environment');
+
+      expect(Environment.MONGODB_URI).toBe('mongodb://localhost:27017/sales');
+      expect(Environment.PORT).toBe(3000);
+      expect(Environment.NODE_ENV).toBe('dev');
+      expect(Environment.APP_NAME).toBe('Sales Order API');
+      expect(Environment.APP_VERSION).toBe('1.0.0');
     });
 
     it('should parse PORT as integer', () => {
@@ -54,7 +58,7 @@ describe('Environment', () => {
     });
   });
 
-  describe('EnvironmentUtils', () => {
+  describe('Environment helpers', () => {
     beforeEach(() => {
       jest.resetModules();
     });
@@ -62,33 +66,33 @@ describe('Environment', () => {
     it('should return true for isDevelopment when NODE_ENV is dev', () => {
       process.env.NODE_ENV = 'dev';
       jest.resetModules();
-      const { EnvironmentUtils } = require('@/main/config/environment');
+      const { isDevelopment } = require('@/main/config/environment');
 
-      expect(EnvironmentUtils.isDevelopment()).toBe(true);
+      expect(isDevelopment).toBe(true);
     });
 
     it('should return false for isDevelopment when NODE_ENV is not dev', () => {
       process.env.NODE_ENV = 'prd';
       jest.resetModules();
-      const { EnvironmentUtils } = require('@/main/config/environment');
+      const { isDevelopment } = require('@/main/config/environment');
 
-      expect(EnvironmentUtils.isDevelopment()).toBe(false);
+      expect(isDevelopment).toBe(false);
     });
 
     it('should return true for isProduction when NODE_ENV is prd', () => {
       process.env.NODE_ENV = 'prd';
       jest.resetModules();
-      const { EnvironmentUtils } = require('@/main/config/environment');
+      const { isProduction } = require('@/main/config/environment');
 
-      expect(EnvironmentUtils.isProduction()).toBe(true);
+      expect(isProduction).toBe(true);
     });
 
     it('should return false for isProduction when NODE_ENV is not prd', () => {
       process.env.NODE_ENV = 'dev';
       jest.resetModules();
-      const { EnvironmentUtils } = require('@/main/config/environment');
+      const { isProduction } = require('@/main/config/environment');
 
-      expect(EnvironmentUtils.isProduction()).toBe(false);
+      expect(isProduction).toBe(false);
     });
   });
 });

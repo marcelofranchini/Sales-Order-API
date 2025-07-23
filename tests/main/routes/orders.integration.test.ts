@@ -27,7 +27,7 @@ jest.mock('@/main/factories/useCases/search-orders-use-case.make', () => ({
   },
 }));
 
-describe('Orders Route', () => {
+describe('Orders Integration Tests', () => {
   let app: Express;
 
   beforeEach(() => {
@@ -44,7 +44,7 @@ describe('Orders Route', () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('message');
-      expect(response.body).toHaveProperty('fileName');
+      expect(response.body).toHaveProperty('fileName', 'test.txt');
     });
 
     it('should return error when no file is sent', async () => {
@@ -61,6 +61,16 @@ describe('Orders Route', () => {
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('message');
+    });
+
+    it('should handle large file upload', async () => {
+      const largeContent = 'test content\n'.repeat(100);
+      const response = await request(app)
+        .post('/order/upload')
+        .attach('file', Buffer.from(largeContent), 'large.txt');
+
+      expect(response.status).toBe(200);
+      expect(response.body.lines).toBe(1);
     });
   });
 

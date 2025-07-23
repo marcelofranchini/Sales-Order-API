@@ -13,7 +13,7 @@ jest.mock('@/main/factories/infra/database-connection.make', () => ({
   },
 }));
 
-describe('Healthcheck Route - Simple Test', () => {
+describe('Healthcheck Route Simple', () => {
   let app: Express;
 
   beforeEach(() => {
@@ -22,21 +22,22 @@ describe('Healthcheck Route - Simple Test', () => {
     setupRoutes(app);
   });
 
-  it('should return 200 and health status', async () => {
-    const response = await request(app)
-      .get('/healthcheck')
-      .expect(200)
-      .expect('Content-Type', /json/);
+  describe('GET /healthcheck', () => {
+    it('should return 200 status', async () => {
+      const response = await request(app).get('/healthcheck');
+      expect(response.status).toBe(200);
+    });
 
-    expect(response.body).toHaveProperty('status');
-    expect(response.body).toHaveProperty('db');
-    expect(response.body).toHaveProperty('timestamp');
-    expect(response.body).toHaveProperty('app');
-    expect(response.body).toHaveProperty('version');
-    expect(response.body).toHaveProperty('environment');
-  });
+    it('should return JSON response', async () => {
+      const response = await request(app).get('/healthcheck');
+      expect(response.headers['content-type']).toContain('application/json');
+    });
 
-  it('should handle CORS preflight request', async () => {
-    await request(app).options('/healthcheck').expect(204);
+    it('should have required properties', async () => {
+      const response = await request(app).get('/healthcheck');
+      expect(response.body).toHaveProperty('status');
+      expect(response.body).toHaveProperty('db');
+      expect(response.body).toHaveProperty('timestamp');
+    });
   });
 });

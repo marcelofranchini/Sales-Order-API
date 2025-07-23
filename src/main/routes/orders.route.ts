@@ -18,14 +18,26 @@ ordersRouter.post(
   '/upload',
   uploadMiddleware,
   (req: Request, res: Response, next) => {
-    UploadOrdersValidation.validate(req);
-    return uploadOrdersAdapter(req, res);
+    try {
+      UploadOrdersValidation.validate(req);
+      return uploadOrdersAdapter(req, res);
+    } catch (error) {
+      return res.status(400).json({
+        message: error instanceof Error ? error.message : 'Erro de validação',
+      });
+    }
   },
 );
 
 ordersRouter.get('/search', (req: Request, res: Response, next) => {
-  SearchOrdersValidation.validate(req);
-  return searchOrdersAdapter(req, res);
+  try {
+    SearchOrdersValidation.validate(req);
+    return searchOrdersAdapter(req, res);
+  } catch (error) {
+    return res.status(400).json({
+      message: error instanceof Error ? error.message : 'Erro de validação',
+    });
+  }
 });
 
 export { ordersRouter };

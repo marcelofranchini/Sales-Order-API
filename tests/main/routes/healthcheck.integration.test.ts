@@ -13,7 +13,7 @@ jest.mock('@/main/factories/infra/database-connection.make', () => ({
   },
 }));
 
-describe('Healthcheck Route', () => {
+describe('Healthcheck Integration Tests', () => {
   let app: Express;
 
   beforeEach(() => {
@@ -86,4 +86,4 @@ describe('Healthcheck Route', () => {
       expect(response2.body).toHaveProperty('status');
     });
   });
-});
+}); 
