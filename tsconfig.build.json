@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@/domain/*": ["./src/domain/*"],
+      "@/infra/*": ["./src/infra/*"],
+      "@/application/*": ["./src/application/*"],
+      "@/presentation/*": ["./src/presentation/*"],
+      "@/main/*": ["./src/main/*"],
+      "@/shared/*": ["./src/shared/*"],
+      "@/tests/*": ["./tests/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["tests/**/*", "node_modules", "dist"]
+} 

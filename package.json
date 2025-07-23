@@ -1,0 +1,76 @@
+{
+  "name": "salesorder-api",
+  "author": "Marcelo Franchini",
+  "version": "1.0.0",
+  "main": "dist/main/server.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "build:prod": "tsc -p tsconfig.build.json && ls -la dist",
+    "start": "NODE_ENV=prd node dist/main/server.js",
+    "dev": "NODE_ENV=dev tsx --tsconfig tsconfig.json src/main/server.ts",
+    "dev:docker": "docker-compose up mongo -d && npm run dev",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "lint": "eslint src tests --ext .ts",
+    "lint:fix": "eslint src tests --ext .ts --fix",
+    "type-check": "tsc --noEmit",
+    "test:coverage": "jest --coverage",
+    "test:coverage:watch": "jest --coverage --watch",
+    "commitlint": "commitlint --edit",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
+  "_moduleAliases": {
+    "@": "./dist",
+    "@/domain": "./dist/domain",
+    "@/infra": "./dist/infra",
+    "@/application": "./dist/application",
+    "@/presentation": "./dist/presentation",
+    "@/main": "./dist/main",
+    "@/shared": "./dist/shared"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^5.1.0",
+    "module-alias": "^2.2.3",
+    "mongoose": "^8.0.0",
+    "multer": "^2.0.2",
+    "swagger": "^0.7.5",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/jest": "^30.0.0",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^20.10.0",
+    "@types/supertest": "^6.0.3",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
+    "@typescript-eslint/eslint-plugin": "^8.38.0",
+    "@typescript-eslint/parser": "^8.38.0",
+    "eslint": "^9.31.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.3",
+    "husky": "^9.1.7",
+    "jest": "^30.0.5",
+    "lint-staged": "^16.1.2",
+    "prettier": "^3.6.2",
+    "supertest": "^7.1.4",
+    "ts-jest": "^29.4.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  }
+}

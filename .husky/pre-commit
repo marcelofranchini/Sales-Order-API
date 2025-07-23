@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+
+echo "🔍 Executando lint-staged..."
+yarn lint-staged
+
+echo "🔍 Verificando tipos..."
+yarn type-check
+
+echo "🔍 Executando testes com cobertura..."
+yarn test:coverage
+
+echo "✅ Pre-commit checks concluídos com sucesso!"

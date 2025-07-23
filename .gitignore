@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.env
+logs
+*.log
+.vscode/
+*.tsbuildinfo
+.yarn-integrity
+.eslintcache
+.prettiercache
+coverage/
