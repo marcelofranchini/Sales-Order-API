@@ -563,21 +563,51 @@ docs(readme): update deployment info
 
 
 
-📁 UPLOAD DE ARQUIVOS
-├── ✅ Apenas arquivos .txt
-├── ✅ Campos: user_id + name + order_id + product_id + value + date
-├── ✅ Processamento: todas as linhas → agrupamento em lotes de 100 → inserção no MongoDB
-├── ✅ Tratamento de duplicatas
-├── ✅ Formato de data: YYYYMMDD → YYYY-MM-DD
-└── ✅ Agregação por usuário e pedido
+# 📦 Sales Order API
 
-🔍 BUSCA DE PEDIDOS
-├── ✅ Filtros: order_id, user_id, start_date, end_date
-├── ✅ Paginação: page, limit (100 por página)
-├── ✅ Parâmetro "all": retorna todos sem paginação
-├── ✅ Agrupamento: usuário → pedidos → produtos
-├── ✅ Cálculo de totais por pedido
-└── ✅ Resposta estruturada com paginação
+## 📂 Upload de Arquivos
+```text
+┌─────────────────────────────────────────────────────────────────┐
+│                        UPLOAD DE ARQUIVOS                      │
+└─────────────────────────────────────────────────────────────────┘
+├── ✅ Apenas arquivos .txt
+├── ✅ Campos fixos:
+│    ├── user_id (10 chars)
+│    ├── name (45 chars)
+│    ├── order_id (10 chars)
+│    ├── product_id (10 chars)
+│    ├── value (12 chars)
+│    └── date (8 chars - YYYYMMDD)
+├── ✅ Processamento:
+│    ├── Leitura linha a linha
+│    ├→ Agrupamento em lotes de 100
+│    └→ Inserção no MongoDB
+├── ✅ Tratamento de duplicatas
+├── ✅ Conversão de data:
+│    └→ YYYYMMDD → YYYY-MM-DD
+└── ✅ Agregação:
+     ├── Por usuário
+     └── Por pedido
+
+┌─────────────────────────────────────────────────────────────────┐
+│                        BUSCA DE PEDIDOS                        │
+└─────────────────────────────────────────────────────────────────┘
+├── ✅ Filtros disponíveis:
+│    ├── user_id
+│    ├── order_id
+│    ├── date_range (start/end)
+│    └── Combinações
+├── ✅ Paginação:
+│    ├── Padrão: página 1
+│    ├── Limite: 100 itens/página
+│    └── Metadados inclusos
+├── ✅ Parâmetro "all":
+│    └── Retorna todos sem paginação
+├── ✅ Agrupamento:
+│    ├── Usuário → Pedidos → Produtos
+│    └── Hierarquia completa
+└── ✅ Cálculos:
+     └── Totais por pedido
 
 🏥 HEALTHCHECK
 ├── ✅ Status da aplicação
