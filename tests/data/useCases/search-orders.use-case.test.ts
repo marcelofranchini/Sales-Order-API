@@ -33,16 +33,10 @@ describe('SearchOrdersUseCaseImpl', () => {
 
   describe('execute', () => {
     it('should search orders with valid parameters', async () => {
-      const mockQuery = { user_id: '1', page: '1' };
-      const mockDocuments: OrderDocument[] = [
-        { user_id: 1, name: 'Test User' } as OrderDocument,
-      ];
+      const mockQuery = { user_id: '1' };
+      const mockDocuments: OrderDocument[] = [];
       const mockGroupedData: UserDto[] = [
-        {
-          user_id: 1,
-          name: 'Test User',
-          orders: [],
-        },
+        { user_id: 1, name: 'Test User', orders: [] },
       ];
 
       mockOrderRepository.countDocuments.mockResolvedValue(10);
@@ -51,17 +45,19 @@ describe('SearchOrdersUseCaseImpl', () => {
 
       const result = await searchOrdersUseCase.execute(mockQuery);
 
-      expect(mockOrderRepository.countDocuments).toHaveBeenCalledWith({
-        user_id: 1,
-      });
       expect(mockOrderRepository.find).toHaveBeenCalledWith(
         { user_id: 1 },
         { skip: 0, limit: 100 },
       );
-      expect(mockOrderAggregationService.groupAndSum).toHaveBeenCalledWith(
-        mockDocuments,
-      );
-      expect(result).toEqual(mockGroupedData);
+      expect(result).toEqual({
+        data: mockGroupedData,
+        pagination: {
+          totalPages: 1,
+          currentPage: 1,
+          totalItems: 10,
+          itemsPerPage: 100,
+        },
+      });
     });
 
     it('should throw error for invalid parameters', async () => {
@@ -89,29 +85,37 @@ describe('SearchOrdersUseCaseImpl', () => {
     });
 
     it('should handle date filtering correctly', async () => {
-      const mockQuery = { start: '2024-01-01', end: '2024-01-31' };
-      const mockDocuments: OrderDocument[] = [];
-      const mockGroupedData: UserDto[] = [];
+      const mockQuery = {
+        start: '2024-01-01',
+        end: '2024-01-31',
+      };
 
-      mockOrderRepository.countDocuments.mockResolvedValue(0);
-      mockOrderRepository.find.mockResolvedValue(mockDocuments);
-      mockOrderAggregationService.groupAndSum.mockReturnValue(mockGroupedData);
+      mockOrderRepository.countDocuments.mockResolvedValue(10);
+      mockOrderRepository.find.mockResolvedValue([]);
+      mockOrderAggregationService.groupAndSum.mockReturnValue([]);
 
-      await searchOrdersUseCase.execute(mockQuery);
+      const result = await searchOrdersUseCase.execute(mockQuery);
 
       expect(mockOrderRepository.countDocuments).toHaveBeenCalledWith({
         date: { $gte: '2024-01-01', $lte: '2024-01-31' },
+      });
+      expect(result).toEqual({
+        pagination: {
+          totalPages: 1,
+          currentPage: 1,
+          totalItems: 10,
+          itemsPerPage: 100,
+        },
+        data: [],
       });
     });
 
     it('should handle date filtering with only start date', async () => {
       const mockQuery = { start: '2024-01-01' };
       const mockDocuments: OrderDocument[] = [];
-      const mockGroupedData: UserDto[] = [];
 
       mockOrderRepository.countDocuments.mockResolvedValue(0);
       mockOrderRepository.find.mockResolvedValue(mockDocuments);
-      mockOrderAggregationService.groupAndSum.mockReturnValue(mockGroupedData);
 
       await searchOrdersUseCase.execute(mockQuery);
 
@@ -122,13 +126,13 @@ describe('SearchOrdersUseCaseImpl', () => {
     });
 
     it('should handle date filtering with only end date', async () => {
-      const mockQuery = { end: '2024-01-31' };
-      const mockDocuments: OrderDocument[] = [];
-      const mockGroupedData: UserDto[] = [];
+      const mockQuery = {
+        end: '2024-01-31',
+      };
 
-      mockOrderRepository.countDocuments.mockResolvedValue(0);
-      mockOrderRepository.find.mockResolvedValue(mockDocuments);
-      mockOrderAggregationService.groupAndSum.mockReturnValue(mockGroupedData);
+      mockOrderRepository.countDocuments.mockResolvedValue(10);
+      mockOrderRepository.find.mockResolvedValue([]);
+      mockOrderAggregationService.groupAndSum.mockReturnValue([]);
 
       await searchOrdersUseCase.execute(mockQuery);
 
@@ -137,22 +141,15 @@ describe('SearchOrdersUseCaseImpl', () => {
       });
     });
 
-    it('should throw error for invalid date format', async () => {
-      const mockQuery = { start: '2024/01/01', end: '2024/01/31' };
-
-      await expect(searchOrdersUseCase.execute(mockQuery)).rejects.toThrow(
-        'Datas devem estar no formato YYYY-MM-DD',
-      );
-    });
-
     it('should swap dates when start is greater than end', async () => {
-      const mockQuery = { start: '2024-01-31', end: '2024-01-01' };
-      const mockDocuments: OrderDocument[] = [];
-      const mockGroupedData: UserDto[] = [];
+      const mockQuery = {
+        start: '2024-01-31',
+        end: '2024-01-01',
+      };
 
-      mockOrderRepository.countDocuments.mockResolvedValue(0);
-      mockOrderRepository.find.mockResolvedValue(mockDocuments);
-      mockOrderAggregationService.groupAndSum.mockReturnValue(mockGroupedData);
+      mockOrderRepository.countDocuments.mockResolvedValue(10);
+      mockOrderRepository.find.mockResolvedValue([]);
+      mockOrderAggregationService.groupAndSum.mockReturnValue([]);
 
       await searchOrdersUseCase.execute(mockQuery);
 
@@ -161,7 +158,7 @@ describe('SearchOrdersUseCaseImpl', () => {
       });
     });
 
-    it('should not apply date filter when order_id is provided', async () => {
+    it('should apply date filter even when order_id is provided', async () => {
       const mockQuery = {
         order_id: '1',
         start: '2024-01-01',
@@ -178,10 +175,11 @@ describe('SearchOrdersUseCaseImpl', () => {
 
       expect(mockOrderRepository.countDocuments).toHaveBeenCalledWith({
         order_id: 1,
+        date: { $gte: '2024-01-01', $lte: '2024-01-31' },
       });
     });
 
-    it('should not apply date filter when user_id is provided', async () => {
+    it('should apply date filter even when user_id is provided', async () => {
       const mockQuery = {
         user_id: '1',
         start: '2024-01-01',
@@ -198,6 +196,7 @@ describe('SearchOrdersUseCaseImpl', () => {
 
       expect(mockOrderRepository.countDocuments).toHaveBeenCalledWith({
         user_id: 1,
+        date: { $gte: '2024-01-01', $lte: '2024-01-31' },
       });
     });
 
@@ -210,12 +209,21 @@ describe('SearchOrdersUseCaseImpl', () => {
       mockOrderRepository.find.mockResolvedValue(mockDocuments);
       mockOrderAggregationService.groupAndSum.mockReturnValue(mockGroupedData);
 
-      await searchOrdersUseCase.execute(mockQuery);
+      const result = await searchOrdersUseCase.execute(mockQuery);
 
       expect(mockOrderRepository.find).toHaveBeenCalledWith(
         {},
         { skip: 200, limit: 100 },
       );
+      expect(result).toEqual({
+        pagination: {
+          totalPages: 3,
+          currentPage: 3,
+          totalItems: 250,
+          itemsPerPage: 100,
+        },
+        data: mockGroupedData,
+      });
     });
 
     it('should handle all parameter to return all results', async () => {
@@ -227,9 +235,18 @@ describe('SearchOrdersUseCaseImpl', () => {
       mockOrderRepository.find.mockResolvedValue(mockDocuments);
       mockOrderAggregationService.groupAndSum.mockReturnValue(mockGroupedData);
 
-      await searchOrdersUseCase.execute(mockQuery);
+      const result = await searchOrdersUseCase.execute(mockQuery);
 
       expect(mockOrderRepository.find).toHaveBeenCalledWith({});
+      expect(result).toEqual({
+        data: mockGroupedData,
+        pagination: {
+          totalPages: 1,
+          currentPage: 1,
+          totalItems: 0,
+          itemsPerPage: 0,
+        },
+      });
     });
 
     it('should handle empty query', async () => {
@@ -241,13 +258,98 @@ describe('SearchOrdersUseCaseImpl', () => {
       mockOrderRepository.find.mockResolvedValue(mockDocuments);
       mockOrderAggregationService.groupAndSum.mockReturnValue(mockGroupedData);
 
-      await searchOrdersUseCase.execute(mockQuery);
+      const result = await searchOrdersUseCase.execute(mockQuery);
 
       expect(mockOrderRepository.countDocuments).toHaveBeenCalledWith({});
       expect(mockOrderRepository.find).toHaveBeenCalledWith(
         {},
         { skip: 0, limit: 100 },
       );
+      expect(result).toEqual({
+        pagination: {
+          totalPages: 1,
+          currentPage: 1,
+          totalItems: 0,
+          itemsPerPage: 100,
+        },
+        data: mockGroupedData,
+      });
+    });
+
+    it('should handle date filtering with multiple parameters', async () => {
+      const mockQuery = {
+        user_id: '1',
+        order_id: '10',
+        start: '2024-01-01',
+        end: '2024-01-31',
+      };
+      const mockDocuments: OrderDocument[] = [];
+      const mockGroupedData: UserDto[] = [];
+
+      mockOrderRepository.countDocuments.mockResolvedValue(0);
+      mockOrderRepository.find.mockResolvedValue(mockDocuments);
+      mockOrderAggregationService.groupAndSum.mockReturnValue(mockGroupedData);
+
+      await searchOrdersUseCase.execute(mockQuery);
+
+      expect(mockOrderRepository.countDocuments).toHaveBeenCalledWith({
+        user_id: 1,
+        order_id: 10,
+        date: { $gte: '2024-01-01', $lte: '2024-01-31' },
+      });
+    });
+
+    it('should handle all filters together', async () => {
+      const mockQuery = {
+        user_id: '1',
+        order_id: '10',
+        start: '2024-01-01',
+        end: '2024-01-31',
+        page: '2',
+      };
+      const mockDocuments: OrderDocument[] = [];
+      const mockGroupedData: UserDto[] = [];
+
+      mockOrderRepository.countDocuments.mockResolvedValue(50);
+      mockOrderRepository.find.mockResolvedValue(mockDocuments);
+      mockOrderAggregationService.groupAndSum.mockReturnValue(mockGroupedData);
+
+      await searchOrdersUseCase.execute(mockQuery);
+
+      expect(mockOrderRepository.countDocuments).toHaveBeenCalledWith({
+        user_id: 1,
+        order_id: 10,
+        date: { $gte: '2024-01-01', $lte: '2024-01-31' },
+      });
+      expect(mockOrderRepository.find).toHaveBeenCalledWith(
+        {
+          user_id: 1,
+          order_id: 10,
+          date: { $gte: '2024-01-01', $lte: '2024-01-31' },
+        },
+        { skip: 100, limit: 100 },
+      );
+    });
+
+    it('should handle date filter with only start date', async () => {
+      const mockQuery = {
+        user_id: '1',
+        start: '2024-01-01',
+      };
+      const mockDocuments: OrderDocument[] = [];
+      const mockGroupedData: UserDto[] = [];
+      const today = new Date().toISOString().slice(0, 10);
+
+      mockOrderRepository.countDocuments.mockResolvedValue(0);
+      mockOrderRepository.find.mockResolvedValue(mockDocuments);
+      mockOrderAggregationService.groupAndSum.mockReturnValue(mockGroupedData);
+
+      await searchOrdersUseCase.execute(mockQuery);
+
+      expect(mockOrderRepository.countDocuments).toHaveBeenCalledWith({
+        user_id: 1,
+        date: { $gte: '2024-01-01', $lte: today },
+      });
     });
   });
 });

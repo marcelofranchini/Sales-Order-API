@@ -61,6 +61,7 @@ describe('adaptExpressRoute', () => {
     } as any;
 
     const error = new Error('Controller error');
+    (error as any).statusCode = 400;
     mockController.handle.mockRejectedValue(error);
 
     const adaptedRoute = adaptExpressRoute(mockController);
@@ -68,9 +69,9 @@ describe('adaptExpressRoute', () => {
     await adaptedRoute(mockRequest, mockResponse);
 
     expect(mockController.handle).toHaveBeenCalled();
-    expect(mockResponse.status).toHaveBeenCalledWith(500);
+    expect(mockResponse.status).toHaveBeenCalledWith(400);
     expect(mockResponse.json).toHaveBeenCalledWith({
-      error: 'Internal server error',
+      error: 'Controller error',
     });
   });
 });

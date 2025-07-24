@@ -16,25 +16,33 @@ describe('OrderAggregationServiceImpl', () => {
           user_id: 1,
           name: 'John Doe',
           order_id: 1,
-          total: '100.00',
+          product_id: 1,
+          product_value: '100.00',
           date: '2024-01-01',
-          products: [{ product_id: 1, value: '100.00' }],
+        },
+        {
+          user_id: 1,
+          name: 'John Doe',
+          order_id: 1,
+          product_id: 2,
+          product_value: '50.00',
+          date: '2024-01-01',
         },
         {
           user_id: 1,
           name: 'John Doe',
           order_id: 2,
-          total: '200.00',
+          product_id: 3,
+          product_value: '200.00',
           date: '2024-01-02',
-          products: [{ product_id: 2, value: '200.00' }],
         },
         {
           user_id: 2,
           name: 'Jane Smith',
           order_id: 3,
-          total: '150.00',
+          product_id: 4,
+          product_value: '150.00',
           date: '2024-01-01',
-          products: [{ product_id: 3, value: '150.00' }],
         },
       ];
 
@@ -47,15 +55,18 @@ describe('OrderAggregationServiceImpl', () => {
         orders: [
           {
             order_id: 1,
-            total: '100.00',
+            total: '150.00',
             date: '2024-01-01',
-            products: [{ product_id: 1, value: '100.00' }],
+            products: [
+              { product_id: 1, value: '100.00' },
+              { product_id: 2, value: '50.00' },
+            ],
           },
           {
             order_id: 2,
             total: '200.00',
             date: '2024-01-02',
-            products: [{ product_id: 2, value: '200.00' }],
+            products: [{ product_id: 3, value: '200.00' }],
           },
         ],
       });
@@ -67,7 +78,7 @@ describe('OrderAggregationServiceImpl', () => {
             order_id: 3,
             total: '150.00',
             date: '2024-01-01',
-            products: [{ product_id: 3, value: '150.00' }],
+            products: [{ product_id: 4, value: '150.00' }],
           },
         ],
       });
@@ -87,9 +98,9 @@ describe('OrderAggregationServiceImpl', () => {
           user_id: 1,
           name: 'John Doe',
           order_id: 1,
-          total: '100.00',
+          product_id: 1,
+          product_value: '100.00',
           date: '2024-01-01',
-          products: [{ product_id: 1, value: '100.00' }],
         },
       ];
 
@@ -108,6 +119,41 @@ describe('OrderAggregationServiceImpl', () => {
           },
         ],
       });
+    });
+
+    it('should calculate totals correctly with multiple products', () => {
+      const mockOrders: OrderDocument[] = [
+        {
+          user_id: 1,
+          name: 'John Doe',
+          order_id: 1,
+          product_id: 1,
+          product_value: '100.50',
+          date: '2024-01-01',
+        },
+        {
+          user_id: 1,
+          name: 'John Doe',
+          order_id: 1,
+          product_id: 2,
+          product_value: '75.25',
+          date: '2024-01-01',
+        },
+        {
+          user_id: 1,
+          name: 'John Doe',
+          order_id: 1,
+          product_id: 3,
+          product_value: '25.00',
+          date: '2024-01-01',
+        },
+      ];
+
+      const result = orderAggregationService.groupAndSum(mockOrders);
+
+      expect(result).toHaveLength(1);
+      expect(result[0].orders[0].total).toBe('200.75');
+      expect(result[0].orders[0].products).toHaveLength(3);
     });
   });
 });

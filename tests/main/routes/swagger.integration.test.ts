@@ -54,15 +54,14 @@ describe('Swagger Integration Tests', () => {
       const response = await request(app).get('/api-docs/');
 
       expect(response.status).toBe(200);
-      expect(response.headers['content-type']).toContain('application/json');
+      expect(response.headers['content-type']).toContain('text/html');
     });
 
-    it('should return JSON content', async () => {
+    it('should return HTML content', async () => {
       const response = await request(app).get('/api-docs/');
 
-      expect(response.body).toHaveProperty('openapi');
-      expect(response.body).toHaveProperty('info');
-      expect(response.body.info.title).toBe('Sales Order API');
+      expect(response.text).toContain('<!DOCTYPE html>');
+      expect(response.text).toContain('swagger-ui');
     });
   });
 });

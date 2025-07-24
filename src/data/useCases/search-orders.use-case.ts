@@ -1,4 +1,7 @@
-import { SearchOrdersUseCase } from '../../domain/useCases/search-orders.usecase.interface';
+import {
+  SearchOrdersUseCase,
+  SearchOrdersResponse,
+} from '../../domain/useCases/search-orders.usecase.interface';
 import {
   OrderRepository,
   OrderDocument,
@@ -12,10 +15,10 @@ export class SearchOrdersUseCaseImpl implements SearchOrdersUseCase {
     private readonly orderAggregationService: OrderAggregationService,
   ) {}
 
-  async execute(query: Record<string, unknown>): Promise<UserDto[]> {
+  async execute(
+    query: Record<string, unknown>,
+  ): Promise<UserDto[] | SearchOrdersResponse> {
     try {
-      console.log('SearchOrdersUseCase - Query received:', query);
-
       const allowedParams = [
         'order_id',
         'user_id',
@@ -45,10 +48,6 @@ export class SearchOrdersUseCaseImpl implements SearchOrdersUseCase {
         }
         filter.user_id = Number(user_id);
       }
-      let applyDateFilter = true;
-      if (order_id !== undefined || user_id !== undefined) {
-        applyDateFilter = false;
-      }
       let startDate = start ? String(start) : undefined;
       let endDate = end ? String(end) : undefined;
       const today = new Date();
@@ -59,7 +58,7 @@ export class SearchOrdersUseCaseImpl implements SearchOrdersUseCase {
       if (!startDate && endDate) {
         startDate = '0000-01-01';
       }
-      if (startDate && endDate && applyDateFilter) {
+      if (startDate && endDate) {
         if (
           !/^\d{4}-\d{2}-\d{2}$/.test(startDate) ||
           !/^\d{4}-\d{2}-\d{2}$/.test(endDate)
@@ -74,16 +73,13 @@ export class SearchOrdersUseCaseImpl implements SearchOrdersUseCase {
         filter.date = { $gte: startDate, $lte: endDate };
       }
       const pageNumber = Number(page) || 1;
-      const limitNumber = 100;
-      const skip = (pageNumber - 1) * limitNumber;
-
-      console.log('SearchOrdersUseCase - Filter:', filter);
-      console.log('SearchOrdersUseCase - Skip:', skip, 'Limit:', limitNumber);
 
       const totalItems = await this.orderRepository.countDocuments(filter);
-      console.log('SearchOrdersUseCase - Total items:', totalItems);
+      const limitNumber = all !== 'true' ? 100 : totalItems;
+      const skip = (pageNumber - 1) * limitNumber;
 
-      const totalPages = Math.ceil(totalItems / limitNumber) || 1;
+      const totalPages =
+        all !== 'true' ? Math.ceil(totalItems / limitNumber) || 1 : pageNumber;
       const docs: OrderDocument[] =
         all === 'true'
           ? await this.orderRepository.find(filter)
@@ -92,12 +88,18 @@ export class SearchOrdersUseCaseImpl implements SearchOrdersUseCase {
               limit: limitNumber,
             });
 
-      console.log('SearchOrdersUseCase - Documents found:', docs.length);
-
       const result = this.orderAggregationService.groupAndSum(docs);
-      console.log('SearchOrdersUseCase - Aggregated result:', result.length);
+      const data = {
+        pagination: {
+          totalPages,
+          currentPage: pageNumber,
+          totalItems,
+          itemsPerPage: limitNumber,
+        },
+        data: result,
+      };
 
-      return result;
+      return data;
     } catch (error) {
       console.error('SearchOrdersUseCase - Error:', error);
       throw error;

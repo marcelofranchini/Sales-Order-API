@@ -17,10 +17,6 @@ export class MongoConnection implements DatabaseConnectionInterface {
 
   async connect(): Promise<void> {
     try {
-      if (this.isConnectedFlag) {
-        return;
-      }
-
       await mongoose.connect(Environment.MONGODB_URI);
       this.isConnectedFlag = true;
       console.log(' MongoDB connected successfully');

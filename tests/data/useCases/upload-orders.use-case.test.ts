@@ -35,16 +35,24 @@ describe('UploadOrdersUseCaseImpl', () => {
 
   describe('execute', () => {
     it('should process TXT file successfully', async () => {
+      const userId = '0000000001';
+      const name = 'João Silva'.padEnd(45, ' ');
+      const orderId = '0000000001';
+      const productId = '0000000001';
+      const productValue = '100.00'.padEnd(12, ' ');
+      const date = '20240101';
+      const line = `${userId}${name}${orderId}${productId}${productValue}${date}`;
+      expect(line.length).toBe(95);
       const mockFile = {
         originalname: 'test.txt',
-        buffer: Buffer.from('1\tUser Test\t1\t1\t100\t20240101\n'),
+        buffer: Buffer.from(line + '\n'),
         size: 100,
       } as Express.Multer.File;
 
       const mockGroupedData: UserDto[] = [
         {
           user_id: 1,
-          name: 'User Test',
+          name: 'João Silva',
           orders: [],
         },
       ];
@@ -84,9 +92,17 @@ describe('UploadOrdersUseCaseImpl', () => {
     });
 
     it('should handle empty lines in file', async () => {
+      const userId = '0000000001';
+      const name = 'João Silva'.padEnd(45, ' ');
+      const orderId = '0000000001';
+      const productId = '0000000001';
+      const productValue = '100.00'.padEnd(12, ' ');
+      const date = '20240101';
+      const line = `${userId}${name}${orderId}${productId}${productValue}${date}`;
+      expect(line.length).toBe(95);
       const mockFile = {
         originalname: 'test.txt',
-        buffer: Buffer.from('1\tUser Test\t1\t1\t100\t20240101\n\n\n'),
+        buffer: Buffer.from(line + '\n\n\n'),
         size: 100,
       } as Express.Multer.File;
 
@@ -101,9 +117,17 @@ describe('UploadOrdersUseCaseImpl', () => {
     });
 
     it('should handle duplicate key errors', async () => {
+      const userId = '0000000001';
+      const name = 'João Silva'.padEnd(45, ' ');
+      const orderId = '0000000001';
+      const productId = '0000000001';
+      const productValue = '100.00'.padEnd(12, ' ');
+      const date = '20240101';
+      const line = `${userId}${name}${orderId}${productId}${productValue}${date}`;
+      expect(line.length).toBe(95);
       const mockFile = {
         originalname: 'test.txt',
-        buffer: Buffer.from('1\tUser Test\t1\t1\t100\t20240101\n'),
+        buffer: Buffer.from(line + '\n'),
         size: 100,
       } as Express.Multer.File;
 
@@ -121,9 +145,17 @@ describe('UploadOrdersUseCaseImpl', () => {
     });
 
     it('should handle other insertion errors', async () => {
+      const userId = '0000000001';
+      const name = 'João Silva'.padEnd(45, ' ');
+      const orderId = '0000000001';
+      const productId = '0000000001';
+      const productValue = '100.00'.padEnd(12, ' ');
+      const date = '20240101';
+      const line = `${userId}${name}${orderId}${productId}${productValue}${date}`;
+      expect(line.length).toBe(95);
       const mockFile = {
         originalname: 'test.txt',
-        buffer: Buffer.from('1\tUser Test\t1\t1\t100\t20240101\n'),
+        buffer: Buffer.from(line + '\n'),
         size: 100,
       } as Express.Multer.File;
 
@@ -141,12 +173,25 @@ describe('UploadOrdersUseCaseImpl', () => {
     });
 
     it('should process multiple lines correctly', async () => {
+      const userId1 = '0000000001';
+      const name1 = 'João Silva'.padEnd(45, ' ');
+      const orderId1 = '0000000001';
+      const productId1 = '0000000001';
+      const productValue1 = '100.00'.padEnd(12, ' ');
+      const date1 = '20240101';
+      const line1 = `${userId1}${name1}${orderId1}${productId1}${productValue1}${date1}`;
+      expect(line1.length).toBe(95);
+      const userId2 = '0000000002';
+      const name2 = 'Maria Santos'.padEnd(45, ' ');
+      const orderId2 = '0000000002';
+      const productId2 = '0000000002';
+      const productValue2 = '200.00'.padEnd(12, ' ');
+      const date2 = '20240102';
+      const line2 = `${userId2}${name2}${orderId2}${productId2}${productValue2}${date2}`;
+      expect(line2.length).toBe(95);
       const mockFile = {
         originalname: 'test.txt',
-        buffer: Buffer.from(
-          '1\tUser Test\t1\t1\t100\t20240101\n' +
-            '2\tUser Test 2\t2\t2\t200\t20240102\n',
-        ),
+        buffer: Buffer.from(line1 + '\n' + line2 + '\n'),
         size: 200,
       } as Express.Multer.File;
 
@@ -167,9 +212,15 @@ describe('UploadOrdersUseCaseImpl', () => {
     it('should handle large files with batching', async () => {
       const lines: string[] = [];
       for (let i = 0; i < 3000; i++) {
-        lines.push(
-          `${i + 1}\tUser Test ${i}\t${i + 1}\t${i + 1}\t${100 + i}\t20240101`,
-        );
+        const userId = String(i + 1).padStart(10, '0');
+        const name = `User Test ${i}`.padEnd(45, ' ');
+        const orderId = String(i + 1).padStart(10, '0');
+        const productId = String(i + 1).padStart(10, '0');
+        const value = String(100 + i).padEnd(12, ' ');
+        const date = '20240101';
+        const line = `${userId}${name}${orderId}${productId}${value}${date}`;
+        expect(line.length).toBe(95);
+        lines.push(line);
       }
 
       const mockFile = {
@@ -190,9 +241,17 @@ describe('UploadOrdersUseCaseImpl', () => {
     });
 
     it('should parse line data correctly', async () => {
+      const userId = '0000000001';
+      const name = 'João Silva'.padEnd(45, ' ');
+      const orderId = '0000000001';
+      const productId = '0000000001';
+      const productValue = '100.00'.padEnd(12, ' ');
+      const date = '20240101';
+      const line = `${userId}${name}${orderId}${productId}${productValue}${date}`;
+      expect(line.length).toBe(95);
       const mockFile = {
         originalname: 'test.txt',
-        buffer: Buffer.from('1\tJoão Silva\t1\t1\t100\t20240101\n'),
+        buffer: Buffer.from(line + '\n'),
         size: 100,
       } as Express.Multer.File;
 
@@ -210,8 +269,8 @@ describe('UploadOrdersUseCaseImpl', () => {
             name: 'João Silva',
             order_id: 1,
             product_id: 1,
-            product_value: '100',
-            date: '20240101',
+            product_value: '100.00',
+            date: '2024-01-01',
           }),
         ]),
         expect.objectContaining({

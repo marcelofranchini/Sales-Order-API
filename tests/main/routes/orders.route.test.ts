@@ -57,7 +57,7 @@ describe('Orders Route', () => {
       const response = await request(app).post('/order/upload');
 
       expect(response.status).toBe(400);
-      expect(response.body).toHaveProperty('message');
+      expect(response.body).toHaveProperty('error');
     });
 
     it('should return error when sending non-TXT file', async () => {
@@ -66,7 +66,7 @@ describe('Orders Route', () => {
         .attach('file', Buffer.from('test content'), 'test.pdf');
 
       expect(response.status).toBe(400);
-      expect(response.body).toHaveProperty('message');
+      expect(response.body).toHaveProperty('error');
     });
   });
 
@@ -93,7 +93,7 @@ describe('Orders Route', () => {
         .query({ invalid_param: 'value' });
 
       expect(response.status).toBe(400);
-      expect(response.body).toHaveProperty('message');
+      expect(response.body).toHaveProperty('error');
     });
 
     it('should handle date filtering', async () => {

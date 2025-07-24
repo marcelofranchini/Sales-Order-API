@@ -43,14 +43,14 @@ describe('MongoConnection', () => {
       );
     });
 
-    it('should not connect if already connected', async () => {
+    it('should connect even if already connected', async () => {
       const mockConnect = require('mongoose').connect;
       mockConnect.mockResolvedValue(undefined);
 
       await mongoConnection.connect();
       await mongoConnection.connect();
 
-      expect(mockConnect).toHaveBeenCalledTimes(1);
+      expect(mockConnect).toHaveBeenCalledTimes(2);
     });
   });
 
