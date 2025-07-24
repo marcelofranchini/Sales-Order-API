@@ -110,7 +110,7 @@ src/
     └── db/         # Banco de dados
 ```
 Pontos de melhoria: 
-- Separar useCase em serviços
+- Separar alguns serviços do useCase
 - Alterar algumas tipagens genéricas
 ## 📋 Regras de Negócio
 
