@@ -16,6 +16,7 @@ async function connectDatabase() {
 }
 
 async function startServer() {
+  console.log(`MongoDB Environment: ${Environment.MONGODB_URI}`);
   await connectDatabase();
 
   app = express();
