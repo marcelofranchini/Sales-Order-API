@@ -14,24 +14,6 @@ API para gerenciamento de pedidos.
 
 O projeto está configurado para deploy automático via GitHub na Railway usando Docker.
 
-**Dockerfile com Build Otimizado:**
-```dockerfile
-# Etapa de build para otimização
-FROM node:20-alpine AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-
-# Etapa de produção
-FROM node:20-alpine AS production
-WORKDIR /app
-COPY --from=builder /app/node_modules ./node_modules
-COPY . .
-RUN npm run build
-EXPOSE 3000
-CMD ["npm", "start"]
-```
-
 **Benefícios do Multi-stage Build:**
 - Reduz tamanho da imagem final
 - Separa dependências de desenvolvimento e produção
@@ -43,8 +25,8 @@ CMD ["npm", "start"]
 ### Pré-requisitos
 - Node.js 20+
 - Yarn
-- MongoDB
-
+- Docker
+  
 ### Com Yarn (Recomendado)
 ```bash
 .env 
@@ -60,11 +42,14 @@ yarn test:coverage
 
 # Executar build
 yarn build
+
+# Executar a versão do build
+yarn start
 ```
 
 ### Com Docker
 ```bash
-# Construir e executar com banco (RECOMENDADO)
+# Construir e executar com banco
 docker-compose up --build
 
 # Ou separadamente:
