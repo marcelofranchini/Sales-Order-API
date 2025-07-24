@@ -1,18 +1,8 @@
-import { MongoConnection } from '@/infra/db/mongoose/mongo-connection';
-import mongoose from 'mongoose';
+import { MongoConnection } from '../../../../src/infra/db/mongoose/mongo-connection';
 
 jest.mock('mongoose', () => ({
   connect: jest.fn(),
   disconnect: jest.fn(),
-  connection: {
-    readyState: 1,
-  },
-  ConnectionStates: {
-    disconnected: 0,
-    connected: 1,
-    connecting: 2,
-    disconnecting: 3,
-  },
 }));
 
 describe('MongoConnection', () => {
@@ -20,6 +10,7 @@ describe('MongoConnection', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (MongoConnection as any).instance = undefined;
     mongoConnection = MongoConnection.getInstance();
   });
 
@@ -34,27 +25,16 @@ describe('MongoConnection', () => {
 
   describe('connect', () => {
     it('should connect to MongoDB successfully', async () => {
-      const mockConnect = mongoose.connect as jest.MockedFunction<
-        typeof mongoose.connect
-      >;
-      mockConnect.mockResolvedValue(mongoose);
+      const mockConnect = require('mongoose').connect;
+      mockConnect.mockResolvedValue(undefined);
 
       await mongoConnection.connect();
 
-      expect(mockConnect).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.objectContaining({
-          maxPoolSize: 10,
-          serverSelectionTimeoutMS: 5000,
-          socketTimeoutMS: 45000,
-        }),
-      );
+      expect(mockConnect).toHaveBeenCalledWith(expect.any(String));
     });
 
     it('should throw error when connection fails', async () => {
-      const mockConnect = mongoose.connect as jest.MockedFunction<
-        typeof mongoose.connect
-      >;
+      const mockConnect = require('mongoose').connect;
       const error = new Error('Connection failed');
       mockConnect.mockRejectedValue(error);
 
@@ -62,73 +42,64 @@ describe('MongoConnection', () => {
         'Connection failed',
       );
     });
+
+    it('should not connect if already connected', async () => {
+      const mockConnect = require('mongoose').connect;
+      mockConnect.mockResolvedValue(undefined);
+
+      await mongoConnection.connect();
+      await mongoConnection.connect();
+
+      expect(mockConnect).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('disconnect', () => {
     it('should disconnect from MongoDB successfully', async () => {
-      const mockDisconnect = mongoose.disconnect as jest.MockedFunction<
-        typeof mongoose.disconnect
-      >;
+      const mockConnect = require('mongoose').connect;
+      const mockDisconnect = require('mongoose').disconnect;
+      mockConnect.mockResolvedValue(undefined);
       mockDisconnect.mockResolvedValue(undefined);
 
+      await mongoConnection.connect();
       await mongoConnection.disconnect();
 
       expect(mockDisconnect).toHaveBeenCalled();
     });
 
     it('should throw error when disconnection fails', async () => {
-      const mockDisconnect = mongoose.disconnect as jest.MockedFunction<
-        typeof mongoose.disconnect
-      >;
-      const error = new Error('Disconnection failed');
-      mockDisconnect.mockRejectedValue(error);
+      const mockConnect = require('mongoose').connect;
+      const mockDisconnect = require('mongoose').disconnect;
+      mockConnect.mockResolvedValue(undefined);
+      mockDisconnect.mockRejectedValue(new Error('Disconnection failed'));
 
+      await mongoConnection.connect();
       await expect(mongoConnection.disconnect()).rejects.toThrow(
         'Disconnection failed',
       );
     });
+
+    it('should not disconnect if not connected', async () => {
+      const mockDisconnect = require('mongoose').disconnect;
+
+      await mongoConnection.disconnect();
+
+      expect(mockDisconnect).not.toHaveBeenCalled();
+    });
   });
 
   describe('isConnected', () => {
-    it('should return true when database is connected', () => {
-      Object.defineProperty(mongoose.connection, 'readyState', {
-        value: 1,
-        writable: true,
-      });
+    it('should return true when connected', async () => {
+      const mockConnect = require('mongoose').connect;
+      mockConnect.mockResolvedValue(undefined);
 
+      await mongoConnection.connect();
       const result = mongoConnection.isConnected();
 
       expect(result).toBe(true);
     });
 
-    it('should return false when database is not connected', () => {
-      Object.defineProperty(mongoose.connection, 'readyState', {
-        value: 0,
-        writable: true,
-      });
-
-      const result = mongoConnection.isConnected();
-
-      expect(result).toBe(false);
-    });
-
-    it('should return false when database is connecting', () => {
-      Object.defineProperty(mongoose.connection, 'readyState', {
-        value: 2,
-        writable: true,
-      });
-
-      const result = mongoConnection.isConnected();
-
-      expect(result).toBe(false);
-    });
-
-    it('should return false when database is disconnecting', () => {
-      Object.defineProperty(mongoose.connection, 'readyState', {
-        value: 3,
-        writable: true,
-      });
-
+    it('should return false when not connected', () => {
       const result = mongoConnection.isConnected();
 
       expect(result).toBe(false);

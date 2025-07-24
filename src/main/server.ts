@@ -1,11 +1,10 @@
-import './config/module-resolver';
 import express, { Express } from 'express';
 import { Server } from 'http';
 import { corsMiddleware } from './middlewares/cors';
 import { MakeDatabaseConnection } from './factories/infra/database-connection.make';
 import { Environment } from './config/environment';
 import { setupRoutes } from './routes/setup.route';
-import { errorHandler } from '@/main/middlewares/error-handler';
+import { errorHandler } from './middlewares/error-handler';
 
 let app: Express;
 let server: Server;

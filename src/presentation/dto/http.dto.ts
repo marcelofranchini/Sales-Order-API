@@ -1,10 +1,10 @@
-import { HealthStatusInterface } from '@/domain/contracts/healthcheck-status.interface';
+import { HealthStatusInterface } from '../../domain/contracts/healthcheck-status.interface';
 
 export interface HttpRequest {
   statusCode(statusCode: number): unknown;
   body?: Record<string, unknown>;
   params?: Record<string, string>;
-  query?: Record<string, string>;
+  query?: Record<string, unknown>;
   headers?: Record<string, string>;
   file?: Express.Multer.File;
   files?: Express.Multer.File[];

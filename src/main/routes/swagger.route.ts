@@ -1,10 +1,11 @@
 import { Router } from 'express';
-import swaggerUi from 'swagger-ui-express';
-import swaggerSpec from '@/main/config/swagger';
+import swaggerSpec from '../config/swagger';
 
 const swaggerRouter = Router();
 
-swaggerRouter.use('/', swaggerUi.serve);
-swaggerRouter.get('/', swaggerUi.setup(swaggerSpec));
+swaggerRouter.get('/', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
 
 export { swaggerRouter };

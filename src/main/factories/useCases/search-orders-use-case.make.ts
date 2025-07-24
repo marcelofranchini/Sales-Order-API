@@ -1,13 +1,14 @@
-import { SearchOrdersUseCase } from '@/domain/useCases/search-orders.usecase.interface';
-import { SearchOrdersUseCaseImpl } from '@/data/useCases/search-orders.use-case';
-import { MakeOrderRepository } from '@/main/factories/repositories/order-repository.make';
-import { MakeOrderAggregationService } from '@/main/factories/services/order-aggregation-service.make';
+import { SearchOrdersUseCaseImpl } from '../../../data/useCases/search-orders.use-case';
+import { MakeOrderRepository } from '../repositories/order-repository.make';
+import { MakeOrderAggregationService } from '../services/order-aggregation-service.make';
 
 export class MakeSearchOrdersUseCase {
-  static create(): SearchOrdersUseCase {
+  static create(): SearchOrdersUseCaseImpl {
+    const orderRepository = MakeOrderRepository.create();
+    const orderAggregationService = MakeOrderAggregationService.create();
     return new SearchOrdersUseCaseImpl(
-      MakeOrderRepository.create(),
-      MakeOrderAggregationService.create(),
+      orderRepository,
+      orderAggregationService,
     );
   }
 }

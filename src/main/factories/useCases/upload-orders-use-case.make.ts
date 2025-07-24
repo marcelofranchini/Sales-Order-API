@@ -1,10 +1,9 @@
-import { UploadOrdersUseCase } from '@/domain/useCases/upload-orders.usecase.interface';
-import { UploadOrdersUseCaseImpl } from '@/data/useCases/upload-orders.use-case';
-import { MakeOrderRepository } from '@/main/factories/repositories/order-repository.make';
-import { MakeOrderAggregationService } from '@/main/factories/services/order-aggregation-service.make';
+import { UploadOrdersUseCaseImpl } from '../../../data/useCases/upload-orders.use-case';
+import { MakeOrderRepository } from '../repositories/order-repository.make';
+import { MakeOrderAggregationService } from '../services/order-aggregation-service.make';
 
 export class MakeUploadOrdersUseCase {
-  static create(): UploadOrdersUseCase {
+  static create(): UploadOrdersUseCaseImpl {
     return new UploadOrdersUseCaseImpl(
       MakeOrderRepository.create(),
       MakeOrderAggregationService.create(),

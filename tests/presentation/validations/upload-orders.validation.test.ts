@@ -1,4 +1,4 @@
-import { UploadOrdersValidation } from '@/presentation/validations/upload-orders.validation';
+import { UploadOrdersValidation } from '../../../src/presentation/validations/upload-orders.validation';
 import { Request } from 'express';
 
 describe('UploadOrdersValidation', () => {
@@ -123,4 +123,4 @@ describe('UploadOrdersValidation', () => {
       }).not.toThrow();
     });
   });
-}); 
+});

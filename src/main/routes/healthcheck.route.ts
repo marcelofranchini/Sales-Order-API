@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { adaptExpressRoute } from '@/infra/adapters/http-express.adpter';
-import { MakeHealthcheckController } from '@/main/factories/controllers/healthcheck-controller.make';
+import { adaptExpressRoute } from '../../infra/adapters/http-express.adpter';
+import { MakeHealthcheckController } from '../factories/controllers/healthcheck-controller.make';
 
 const healthcheckRouter = Router();
 const healthcheckController = MakeHealthcheckController.create();

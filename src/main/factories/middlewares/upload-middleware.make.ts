@@ -1,9 +1,8 @@
-import { UploadMiddleware } from '@/main/middlewares/upload.middleware';
-import { MakeMulterAdapter } from '@/main/factories/adpters/multer.make';
+import { UploadMiddleware } from '../../middlewares/upload.middleware';
+import { MakeMulterAdapter } from '../adpters/multer.make';
 
 export class MakeUploadMiddleware {
   static create(): UploadMiddleware {
-    const multerAdapter = MakeMulterAdapter.create();
-    return new UploadMiddleware(multerAdapter);
+    return new UploadMiddleware(MakeMulterAdapter.create());
   }
 }

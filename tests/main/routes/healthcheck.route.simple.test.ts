@@ -1,9 +1,9 @@
 import request from 'supertest';
 import express, { Express } from 'express';
-import { setupRoutes } from '@/main/routes/setup.route';
-import { corsMiddleware } from '@/main/middlewares/cors';
+import { setupRoutes } from '../../../src/main/routes/setup.route';
+import { corsMiddleware } from '../../../src/main/middlewares/cors';
 
-jest.mock('@/main/factories/infra/database-connection.make', () => ({
+jest.mock('../../../src/main/factories/infra/database-connection.make', () => ({
   MakeDatabaseConnection: {
     create: jest.fn(() => ({
       connect: jest.fn(),

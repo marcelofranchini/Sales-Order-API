@@ -23,10 +23,10 @@ export class SearchOrdersValidation {
     if (req.query.user_id && !/^[0-9]+$/.test(String(req.query.user_id))) {
       throw new Error('user_id deve ser um número inteiro');
     }
-    if (req.query.start && req.query.start.length !== 10) {
+    if (req.query.start && String(req.query.start).length !== 10) {
       throw new Error('Data inicial deve estar no formato YYYY-MM-DD');
     }
-    if (req.query.end && req.query.end.length !== 10) {
+    if (req.query.end && String(req.query.end).length !== 10) {
       throw new Error('Data final deve estar no formato YYYY-MM-DD');
     }
   }

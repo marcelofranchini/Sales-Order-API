@@ -28,17 +28,8 @@ module.exports = {
       statements: 70
     }
   },
-  moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1',
-    '^@/domain/(.*)$': '<rootDir>/src/domain/$1',
-    '^@/infra/(.*)$': '<rootDir>/src/infra/$1',
-    '^@/application/(.*)$': '<rootDir>/src/application/$1',
-    '^@/presentation/(.*)$': '<rootDir>/src/presentation/$1',
-    '^@/main/(.*)$': '<rootDir>/src/main/$1',
-    '^@/shared/(.*)$': '<rootDir>/src/shared/$1',
-    '^@/tests/(.*)$': '<rootDir>/tests/$1'
-  },
   testTimeout: 10000,
   moduleFileExtensions: ['ts', 'js', 'json'],
   testPathIgnorePatterns: ['/node_modules/', '/dist/'],
+  moduleDirectories: ['node_modules', 'src'],
 }; 

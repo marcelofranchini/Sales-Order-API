@@ -5,10 +5,10 @@
   "main": "dist/main/server.js",
   "license": "MIT",
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "build:prod": "tsc -p tsconfig.build.json && ls -la dist",
-    "start": "NODE_ENV=prd node dist/main/server.js",
-    "dev": "NODE_ENV=dev tsx --tsconfig tsconfig.json src/main/server.ts",
+    "build": "tsc",
+    "build:prod": "tsc && ls -la dist",
+    "start": "node dist/main/server.js",
+    "dev": "tsx --tsconfig tsconfig.json src/main/server.ts",
     "dev:docker": "docker-compose up mongo -d && npm run dev",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
@@ -20,7 +20,7 @@
     "commitlint": "commitlint --edit",
     "test": "jest",
     "test:watch": "jest --watch",
-    "prepare": "husky"
+    "prepare": "husky install"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
@@ -28,20 +28,11 @@
       "prettier --write"
     ]
   },
-  "_moduleAliases": {
-    "@": "./dist",
-    "@/domain": "./dist/domain",
-    "@/infra": "./dist/infra",
-    "@/application": "./dist/application",
-    "@/presentation": "./dist/presentation",
-    "@/main": "./dist/main",
-    "@/shared": "./dist/shared"
-  },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^5.1.0",
-    "module-alias": "^2.2.3",
+
     "mongoose": "^8.0.0",
     "multer": "^2.0.2",
     "swagger": "^0.7.5",

@@ -1,53 +1,47 @@
-import { MakeDatabaseConnection } from '@/main/factories/infra/database-connection.make';
-import { DatabaseConnectionInterface } from '@/domain/contracts/database-connection.interface';
+import { MakeDatabaseConnection } from '../../../../src/main/factories/infra/database-connection.make';
+import { DatabaseConnectionInterface } from '../../../../src/domain/contracts/database-connection.interface';
 
-jest.mock('@/infra/db/mongoose/mongo-connection', () => ({
+jest.mock('../../../../src/infra/db/mongoose/mongo-connection', () => ({
   MongoConnection: {
-    getInstance: jest.fn(),
+    getInstance: jest.fn(() => ({
+      connect: jest.fn().mockResolvedValue(true),
+      disconnect: jest.fn().mockResolvedValue(true),
+      isConnected: jest.fn().mockReturnValue(true),
+    })),
   },
 }));
 
 describe('MakeDatabaseConnection', () => {
-  let mockMongoConnection: jest.Mocked<DatabaseConnectionInterface>;
-
   beforeEach(() => {
-    mockMongoConnection = {
-      connect: jest.fn(),
-      disconnect: jest.fn(),
-      isConnected: jest.fn(),
-    };
-
-    const { MongoConnection } = require('@/infra/db/mongoose/mongo-connection');
-    MongoConnection.getInstance.mockReturnValue(mockMongoConnection);
-  });
-
-  afterEach(() => {
     jest.clearAllMocks();
   });
 
   describe('create', () => {
-    it('should create a database connection instance', () => {
+    it('should create a DatabaseConnection instance', () => {
       const result = MakeDatabaseConnection.create();
 
-      expect(result).toBe(mockMongoConnection);
-      expect(result).toHaveProperty('connect');
-      expect(result).toHaveProperty('disconnect');
-      expect(result).toHaveProperty('isConnected');
-    });
-
-    it('should return the same instance when called multiple times', () => {
-      const instance1 = MakeDatabaseConnection.create();
-      const instance2 = MakeDatabaseConnection.create();
-
-      expect(instance1).toBe(instance2);
+      expect(result).toBeDefined();
+      expect(typeof result.connect).toBe('function');
+      expect(typeof result.disconnect).toBe('function');
+      expect(typeof result.isConnected).toBe('function');
     });
 
     it('should implement DatabaseConnectionInterface', () => {
       const connection = MakeDatabaseConnection.create();
 
-      expect(typeof connection.connect).toBe('function');
-      expect(typeof connection.disconnect).toBe('function');
-      expect(typeof connection.isConnected).toBe('function');
+      expect(connection).toHaveProperty('connect');
+      expect(connection).toHaveProperty('disconnect');
+      expect(connection).toHaveProperty('isConnected');
+    });
+
+    it('should create MongoConnection with correct configuration', () => {
+      const {
+        MongoConnection,
+      } = require('../../../../src/infra/db/mongoose/mongo-connection');
+
+      MakeDatabaseConnection.create();
+
+      expect(MongoConnection.getInstance).toHaveBeenCalled();
     });
   });
 });

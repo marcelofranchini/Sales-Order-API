@@ -1,24 +1,30 @@
-import { MakeUploadOrdersUseCase } from '@/main/factories/useCases/upload-orders-use-case.make';
-import { UploadOrdersUseCase } from '@/domain/useCases/upload-orders.usecase.interface';
+import { MakeUploadOrdersUseCase } from '../../../../src/main/factories/useCases/upload-orders-use-case.make';
+import { UploadOrdersUseCase } from '../../../../src/domain/useCases/upload-orders.usecase.interface';
 
-jest.mock('@/main/factories/repositories/order-repository.make', () => ({
-  MakeOrderRepository: {
-    create: jest.fn(() => ({
-      find: jest.fn(),
-      countDocuments: jest.fn(),
-      insertMany: jest.fn(),
-      dropIndex: jest.fn(),
-    })),
-  },
-}));
+jest.mock(
+  '../../../../src/main/factories/repositories/order-repository.make',
+  () => ({
+    MakeOrderRepository: {
+      create: jest.fn(() => ({
+        find: jest.fn(),
+        countDocuments: jest.fn(),
+        insertMany: jest.fn(),
+        dropIndex: jest.fn(),
+      })),
+    },
+  }),
+);
 
-jest.mock('@/main/factories/services/order-aggregation-service.make', () => ({
-  MakeOrderAggregationService: {
-    create: jest.fn(() => ({
-      groupAndSum: jest.fn(),
-    })),
-  },
-}));
+jest.mock(
+  '../../../../src/main/factories/services/order-aggregation-service.make',
+  () => ({
+    MakeOrderAggregationService: {
+      create: jest.fn(() => ({
+        groupAndSum: jest.fn(),
+      })),
+    },
+  }),
+);
 
 describe('MakeUploadOrdersUseCase', () => {
   beforeEach(() => {
@@ -67,9 +73,13 @@ describe('MakeUploadOrdersUseCase', () => {
     it('should handle null file', async () => {
       const useCase = MakeUploadOrdersUseCase.create();
 
-      jest.spyOn(useCase, 'execute').mockRejectedValue(new Error('Nenhum arquivo foi enviado'));
+      jest
+        .spyOn(useCase, 'execute')
+        .mockRejectedValue(new Error('Nenhum arquivo foi enviado'));
 
-      await expect(useCase.execute(null as any)).rejects.toThrow('Nenhum arquivo foi enviado');
+      await expect(useCase.execute(null as any)).rejects.toThrow(
+        'Nenhum arquivo foi enviado',
+      );
     });
   });
-}); 
+});

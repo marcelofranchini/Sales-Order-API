@@ -1,4 +1,9 @@
-import { HttpRequest, HttpResponse, HealthCheckRequest, HealthCheckResponse } from '@/presentation/dto/http.dto';
+import {
+  HttpRequest,
+  HttpResponse,
+  HealthCheckRequest,
+  HealthCheckResponse,
+} from '../../../src/presentation/dto/http.dto';
 
 describe('HTTP DTOs', () => {
   describe('HttpRequest', () => {
@@ -145,4 +150,4 @@ describe('HTTP DTOs', () => {
       expect(response.statusCode).toBe(503);
     });
   });
-}); 
+});

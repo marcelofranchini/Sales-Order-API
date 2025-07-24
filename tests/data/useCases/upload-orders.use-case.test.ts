@@ -1,8 +1,10 @@
-import { UploadOrdersUseCaseImpl } from '@/data/useCases/upload-orders.use-case';
-import { OrderRepository } from '@/domain/repositories/order-repository.interface';
-import { OrderAggregationService } from '@/domain/services/order-aggregation.service.interface';
-import { UploadOrdersResponseDto } from '@/presentation/dto/order.dto';
-import { UserDto } from '@/presentation/dto/order.dto';
+import { UploadOrdersUseCaseImpl } from '../../../src/data/useCases/upload-orders.use-case';
+import { OrderRepository } from '../../../src/domain/repositories/order-repository.interface';
+import { OrderAggregationService } from '../../../src/domain/services/order-aggregation.service.interface';
+import {
+  UploadOrdersResponseDto,
+  UserDto,
+} from '../../../src/presentation/dto/order.dto';
 
 describe('UploadOrdersUseCaseImpl', () => {
   let uploadOrdersUseCase: UploadOrdersUseCaseImpl;
@@ -35,7 +37,7 @@ describe('UploadOrdersUseCaseImpl', () => {
     it('should process TXT file successfully', async () => {
       const mockFile = {
         originalname: 'test.txt',
-        buffer: Buffer.from('0000000001User Test                                   00000000010000000001000000001020240101\n'),
+        buffer: Buffer.from('1\tUser Test\t1\t1\t100\t20240101\n'),
         size: 100,
       } as Express.Multer.File;
 
@@ -47,8 +49,7 @@ describe('UploadOrdersUseCaseImpl', () => {
         },
       ];
 
-      mockOrderRepository.dropIndex.mockResolvedValue(undefined);
-      mockOrderRepository.insertMany.mockResolvedValue([{ _id: '1' }]);
+      mockOrderRepository.insertMany.mockResolvedValue([{ _id: '1' }] as any[]);
       mockOrderAggregationService.groupAndSum.mockReturnValue(mockGroupedData);
 
       const result = await uploadOrdersUseCase.execute(mockFile);
@@ -85,14 +86,13 @@ describe('UploadOrdersUseCaseImpl', () => {
     it('should handle empty lines in file', async () => {
       const mockFile = {
         originalname: 'test.txt',
-        buffer: Buffer.from('0000000001User Test                                   00000000010000000001000000001020240101\n\n\n'),
+        buffer: Buffer.from('1\tUser Test\t1\t1\t100\t20240101\n\n\n'),
         size: 100,
       } as Express.Multer.File;
 
       const mockGroupedData: UserDto[] = [];
 
-      mockOrderRepository.dropIndex.mockResolvedValue(undefined);
-      mockOrderRepository.insertMany.mockResolvedValue([{ _id: '1' }]);
+      mockOrderRepository.insertMany.mockResolvedValue([{ _id: '1' }] as any[]);
       mockOrderAggregationService.groupAndSum.mockReturnValue(mockGroupedData);
 
       const result = await uploadOrdersUseCase.execute(mockFile);
@@ -100,37 +100,15 @@ describe('UploadOrdersUseCaseImpl', () => {
       expect(result.lines).toBe(1);
     });
 
-    it('should handle index drop error gracefully', async () => {
-      const mockFile = {
-        originalname: 'test.txt',
-        buffer: Buffer.from('0000000001User Test                                   00000000010000000001000000001020240101\n'),
-        size: 100,
-      } as Express.Multer.File;
-
-      const mockGroupedData: UserDto[] = [];
-
-      const indexError = new Error('Index not found');
-      (indexError as any).codeName = 'IndexNotFound';
-      mockOrderRepository.dropIndex.mockRejectedValue(indexError);
-      mockOrderRepository.insertMany.mockResolvedValue([{ _id: '1' }]);
-      mockOrderAggregationService.groupAndSum.mockReturnValue(mockGroupedData);
-
-      const result = await uploadOrdersUseCase.execute(mockFile);
-
-      expect(result.savedOrders).toBe(1);
-    });
-
     it('should handle duplicate key errors', async () => {
       const mockFile = {
         originalname: 'test.txt',
-        buffer: Buffer.from('0000000001User Test                                   00000000010000000001000000001020240101\n'),
+        buffer: Buffer.from('1\tUser Test\t1\t1\t100\t20240101\n'),
         size: 100,
       } as Express.Multer.File;
 
       const mockGroupedData: UserDto[] = [];
 
-      mockOrderRepository.dropIndex.mockResolvedValue(undefined);
-      
       const duplicateError = new Error('Duplicate key');
       (duplicateError as any).code = 11000;
       mockOrderRepository.insertMany.mockRejectedValue(duplicateError);
@@ -145,14 +123,12 @@ describe('UploadOrdersUseCaseImpl', () => {
     it('should handle other insertion errors', async () => {
       const mockFile = {
         originalname: 'test.txt',
-        buffer: Buffer.from('0000000001User Test                                   00000000010000000001000000001020240101\n'),
+        buffer: Buffer.from('1\tUser Test\t1\t1\t100\t20240101\n'),
         size: 100,
       } as Express.Multer.File;
 
       const mockGroupedData: UserDto[] = [];
 
-      mockOrderRepository.dropIndex.mockResolvedValue(undefined);
-      
       const otherError = new Error('Other error');
       (otherError as any).code = 500;
       mockOrderRepository.insertMany.mockRejectedValue(otherError);
@@ -168,16 +144,18 @@ describe('UploadOrdersUseCaseImpl', () => {
       const mockFile = {
         originalname: 'test.txt',
         buffer: Buffer.from(
-          '0000000001User Test                                   00000000010000000001000000001020240101\n' +
-          '0000000002User Test 2                                 00000000020000000002000000002020240102\n'
+          '1\tUser Test\t1\t1\t100\t20240101\n' +
+            '2\tUser Test 2\t2\t2\t200\t20240102\n',
         ),
         size: 200,
       } as Express.Multer.File;
 
       const mockGroupedData: UserDto[] = [];
 
-      mockOrderRepository.dropIndex.mockResolvedValue(undefined);
-      mockOrderRepository.insertMany.mockResolvedValue([{ _id: '1' }, { _id: '2' }]);
+      mockOrderRepository.insertMany.mockResolvedValue([
+        { _id: '1' },
+        { _id: '2' },
+      ] as any[]);
       mockOrderAggregationService.groupAndSum.mockReturnValue(mockGroupedData);
 
       const result = await uploadOrdersUseCase.execute(mockFile);
@@ -187,11 +165,13 @@ describe('UploadOrdersUseCaseImpl', () => {
     });
 
     it('should handle large files with batching', async () => {
-      const lines = [];
+      const lines: string[] = [];
       for (let i = 0; i < 3000; i++) {
-        lines.push(`0000000001User Test ${i.toString().padStart(10)}00000000010000000001000000001020240101`);
+        lines.push(
+          `${i + 1}\tUser Test ${i}\t${i + 1}\t${i + 1}\t${100 + i}\t20240101`,
+        );
       }
-      
+
       const mockFile = {
         originalname: 'large.txt',
         buffer: Buffer.from(lines.join('\n')),
@@ -200,8 +180,7 @@ describe('UploadOrdersUseCaseImpl', () => {
 
       const mockGroupedData: UserDto[] = [];
 
-      mockOrderRepository.dropIndex.mockResolvedValue(undefined);
-      mockOrderRepository.insertMany.mockResolvedValue(Array(3000).fill({ _id: '1' }));
+      mockOrderRepository.insertMany.mockResolvedValue([{ _id: '1' }] as any[]);
       mockOrderAggregationService.groupAndSum.mockReturnValue(mockGroupedData);
 
       const result = await uploadOrdersUseCase.execute(mockFile);
@@ -213,14 +192,13 @@ describe('UploadOrdersUseCaseImpl', () => {
     it('should parse line data correctly', async () => {
       const mockFile = {
         originalname: 'test.txt',
-        buffer: Buffer.from('0000000001João Silva                                 00000000010000000001000000001020240101\n'),
+        buffer: Buffer.from('1\tJoão Silva\t1\t1\t100\t20240101\n'),
         size: 100,
       } as Express.Multer.File;
 
       const mockGroupedData: UserDto[] = [];
 
-      mockOrderRepository.dropIndex.mockResolvedValue(undefined);
-      mockOrderRepository.insertMany.mockResolvedValue([{ _id: '1' }]);
+      mockOrderRepository.insertMany.mockResolvedValue([{ _id: '1' }] as any[]);
       mockOrderAggregationService.groupAndSum.mockReturnValue(mockGroupedData);
 
       await uploadOrdersUseCase.execute(mockFile);
@@ -229,11 +207,11 @@ describe('UploadOrdersUseCaseImpl', () => {
         expect.arrayContaining([
           expect.objectContaining({
             user_id: 1,
-            name: expect.any(String),
-            order_id: expect.any(Number),
-            product_id: expect.any(Number),
-            product_value: expect.any(String),
-            date: expect.any(String),
+            name: 'João Silva',
+            order_id: 1,
+            product_id: 1,
+            product_value: '100',
+            date: '20240101',
           }),
         ]),
         expect.objectContaining({
@@ -242,4 +220,4 @@ describe('UploadOrdersUseCaseImpl', () => {
       );
     });
   });
-}); 
+});

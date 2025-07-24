@@ -10,7 +10,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "allowImportingTsExtensions": false,
-    "noEmit": true,
+    "noEmit": false,
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],

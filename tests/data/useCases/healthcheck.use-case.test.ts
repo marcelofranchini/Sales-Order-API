@@ -1,6 +1,6 @@
-import { HealthCheckUseCase } from '@/data/useCases/healthcheck.use-case';
-import { DatabaseConnectionInterface } from '@/domain/contracts/database-connection.interface';
-import { HealthStatusInterface } from '@/domain/contracts/healthcheck-status.interface';
+import { HealthCheckUseCase } from '../../../src/data/useCases/healthcheck.use-case';
+import { DatabaseConnectionInterface } from '../../../src/domain/contracts/database-connection.interface';
+import { HealthStatusInterface } from '../../../src/domain/contracts/healthcheck-status.interface';
 
 describe('HealthCheckUseCase', () => {
   let healthCheckUseCase: HealthCheckUseCase;
@@ -27,35 +27,20 @@ describe('HealthCheckUseCase', () => {
       const result = await healthCheckUseCase.execute();
 
       expect(mockDatabaseConnection.isConnected).toHaveBeenCalled();
-      expect(result).toEqual({
-        status: 'OK',
-        db: 'OK',
-      });
+      expect(result.status).toBe('OK');
+      expect(result.db).toBe('OK');
+      expect(result).toHaveProperty('timestamp');
     });
 
-    it('should throw error when database is not connected', async () => {
+    it('should return FAIL status when database is not connected', async () => {
       mockDatabaseConnection.isConnected.mockReturnValue(false);
-
-      await expect(healthCheckUseCase.execute()).rejects.toThrow(
-        'MongoDB connection failed',
-      );
-
-      expect(mockDatabaseConnection.isConnected).toHaveBeenCalled();
-    });
-
-    it('should implement HealthCheckUseCaseInterface', () => {
-      expect(typeof healthCheckUseCase.execute).toBe('function');
-    });
-
-    it('should return HealthStatusInterface structure', async () => {
-      mockDatabaseConnection.isConnected.mockReturnValue(true);
 
       const result = await healthCheckUseCase.execute();
 
-      expect(result).toHaveProperty('status');
-      expect(result).toHaveProperty('db');
-      expect(typeof result.status).toBe('string');
-      expect(typeof result.db).toBe('string');
+      expect(mockDatabaseConnection.isConnected).toHaveBeenCalled();
+      expect(result.status).toBe('FAIL');
+      expect(result.db).toBe('FAIL');
+      expect(result).toHaveProperty('timestamp');
     });
 
     it('should handle database connection errors', async () => {
@@ -63,9 +48,34 @@ describe('HealthCheckUseCase', () => {
         throw new Error('Database connection error');
       });
 
-      await expect(healthCheckUseCase.execute()).rejects.toThrow(
-        'Database connection error',
+      const result = await healthCheckUseCase.execute();
+
+      expect(mockDatabaseConnection.isConnected).toHaveBeenCalled();
+      expect(result.status).toBe('FAIL');
+      expect(result.db).toBe('FAIL');
+      expect(result).toHaveProperty('timestamp');
+    });
+
+    it('should return consistent timestamp format', async () => {
+      mockDatabaseConnection.isConnected.mockReturnValue(true);
+
+      const result = await healthCheckUseCase.execute();
+
+      expect(result.timestamp).toMatch(
+        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
       );
+    });
+
+    it('should handle multiple consecutive calls', async () => {
+      mockDatabaseConnection.isConnected.mockReturnValue(true);
+
+      const result1 = await healthCheckUseCase.execute();
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      const result2 = await healthCheckUseCase.execute();
+
+      expect(result1.status).toBe('OK');
+      expect(result2.status).toBe('OK');
+      expect(result1.timestamp).not.toBe(result2.timestamp);
     });
   });
 });

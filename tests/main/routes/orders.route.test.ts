@@ -1,31 +1,37 @@
 import request from 'supertest';
 import express, { Express } from 'express';
-import { setupRoutes } from '@/main/routes/setup.route';
-import { corsMiddleware } from '@/main/middlewares/cors';
+import { setupRoutes } from '../../../src/main/routes/setup.route';
+import { corsMiddleware } from '../../../src/main/middlewares/cors';
 
-jest.mock('@/main/factories/useCases/upload-orders-use-case.make', () => ({
-  MakeUploadOrdersUseCase: {
-    create: jest.fn(() => ({
-      execute: jest.fn().mockResolvedValue({
-        message: 'Arquivo TXT processado e salvo no MongoDB com sucesso',
-        fileName: 'test.txt',
-        fileSize: 100,
-        lines: 1,
-        savedOrders: 1,
-        skippedOrders: 0,
-        data: [],
-      }),
-    })),
-  },
-}));
+jest.mock(
+  '../../../src/main/factories/useCases/upload-orders-use-case.make',
+  () => ({
+    MakeUploadOrdersUseCase: {
+      create: jest.fn(() => ({
+        execute: jest.fn().mockResolvedValue({
+          message: 'Arquivo TXT processado e salvo no MongoDB com sucesso',
+          fileName: 'test.txt',
+          fileSize: 100,
+          lines: 1,
+          savedOrders: 1,
+          skippedOrders: 0,
+          data: [],
+        }),
+      })),
+    },
+  }),
+);
 
-jest.mock('@/main/factories/useCases/search-orders-use-case.make', () => ({
-  MakeSearchOrdersUseCase: {
-    create: jest.fn(() => ({
-      execute: jest.fn().mockResolvedValue([]),
-    })),
-  },
-}));
+jest.mock(
+  '../../../src/main/factories/useCases/search-orders-use-case.make',
+  () => ({
+    MakeSearchOrdersUseCase: {
+      create: jest.fn(() => ({
+        execute: jest.fn().mockResolvedValue([]),
+      })),
+    },
+  }),
+);
 
 describe('Orders Route', () => {
   let app: Express;
@@ -117,4 +123,4 @@ describe('Orders Route', () => {
       expect(Array.isArray(response.body)).toBe(true);
     });
   });
-}); 
+});

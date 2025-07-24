@@ -1,25 +1,23 @@
 import { Request, Response } from 'express';
-import { ControllerInterface } from '@/presentation/interfaces/controller.interface';
-import { HttpRequest, HttpResponse } from '@/presentation/dto/http.dto';
+import { ControllerInterface } from '../../presentation/interfaces/controller.interface';
+import { HttpRequest, HttpResponse } from '../../presentation/dto/http.dto';
 
-export function adaptExpressRoute<TRequest extends HttpRequest = HttpRequest>(
-  controller: ControllerInterface<TRequest>,
-) {
+export function adaptExpressRoute(controller: ControllerInterface) {
   return async (req: Request, res: Response): Promise<void> => {
     try {
-      const httpRequest = {
+      const httpRequest: HttpRequest = {
         body: req.body,
         params: req.params,
-        query: req.query,
-        headers: req.headers,
+        query: req.query as Record<string, unknown>,
+        headers: req.headers as Record<string, string>,
         file: req.file,
-        files: req.files,
-      } as unknown as TRequest;
+        files: req.files as Express.Multer.File[],
+        statusCode: res.status,
+      };
 
       const httpResponse: HttpResponse = await controller.handle(httpRequest);
 
-      const statusCode = Number(httpResponse.statusCode) || 200;
-      res.status(statusCode).json(httpResponse.body);
+      res.status(httpResponse.statusCode).json(httpResponse.body);
     } catch (error) {
       console.error('Route adapter error:', error);
       res.status(500).json({ error: 'Internal server error' });

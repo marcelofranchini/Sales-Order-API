@@ -1,9 +1,9 @@
-import mongoose, { ConnectionStates } from 'mongoose';
-import { DatabaseConnectionInterface } from '@/domain/contracts/database-connection.interface';
-import { Environment } from '@/main/config/environment';
+import mongoose from 'mongoose';
+import { DatabaseConnectionInterface } from '../../../domain/contracts/database-connection.interface';
+import { Environment } from '../../../main/config/environment';
 
 export class MongoConnection implements DatabaseConnectionInterface {
-  private static instance: MongoConnection | null = null;
+  private static instance: MongoConnection;
   private isConnectedFlag = false;
 
   private constructor() {}
@@ -17,14 +17,11 @@ export class MongoConnection implements DatabaseConnectionInterface {
 
   async connect(): Promise<void> {
     try {
-      const mongoUri = Environment.MONGODB_URI;
+      if (this.isConnectedFlag) {
+        return;
+      }
 
-      await mongoose.connect(mongoUri, {
-        maxPoolSize: 10,
-        serverSelectionTimeoutMS: 5000,
-        socketTimeoutMS: 45000,
-      });
-
+      await mongoose.connect(Environment.MONGODB_URI);
       this.isConnectedFlag = true;
       console.log(' MongoDB connected successfully');
     } catch (error) {
@@ -35,6 +32,10 @@ export class MongoConnection implements DatabaseConnectionInterface {
 
   async disconnect(): Promise<void> {
     try {
+      if (!this.isConnectedFlag) {
+        return;
+      }
+
       await mongoose.disconnect();
       this.isConnectedFlag = false;
       console.log('MongoDB disconnected successfully');
@@ -45,9 +46,6 @@ export class MongoConnection implements DatabaseConnectionInterface {
   }
 
   isConnected(): boolean {
-    const readyState = mongoose.connection.readyState;
-    const isConnected = readyState === ConnectionStates.connected;
-
-    return isConnected;
+    return this.isConnectedFlag;
   }
 }

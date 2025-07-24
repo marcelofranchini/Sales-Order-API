@@ -1,24 +1,30 @@
-import { MakeSearchOrdersUseCase } from '@/main/factories/useCases/search-orders-use-case.make';
-import { SearchOrdersUseCase } from '@/domain/useCases/search-orders.usecase.interface';
+import { MakeSearchOrdersUseCase } from '../../../../src/main/factories/useCases/search-orders-use-case.make';
+import { SearchOrdersUseCase } from '../../../../src/domain/useCases/search-orders.usecase.interface';
 
-jest.mock('@/main/factories/repositories/order-repository.make', () => ({
-  MakeOrderRepository: {
-    create: jest.fn(() => ({
-      find: jest.fn(),
-      countDocuments: jest.fn(),
-      insertMany: jest.fn(),
-      dropIndex: jest.fn(),
-    })),
-  },
-}));
+jest.mock(
+  '../../../../src/main/factories/repositories/order-repository.make',
+  () => ({
+    MakeOrderRepository: {
+      create: jest.fn(() => ({
+        find: jest.fn(),
+        countDocuments: jest.fn(),
+        insertMany: jest.fn(),
+        dropIndex: jest.fn(),
+      })),
+    },
+  }),
+);
 
-jest.mock('@/main/factories/services/order-aggregation-service.make', () => ({
-  MakeOrderAggregationService: {
-    create: jest.fn(() => ({
-      groupAndSum: jest.fn(),
-    })),
-  },
-}));
+jest.mock(
+  '../../../../src/main/factories/services/order-aggregation-service.make',
+  () => ({
+    MakeOrderAggregationService: {
+      create: jest.fn(() => ({
+        groupAndSum: jest.fn(),
+      })),
+    },
+  }),
+);
 
 describe('MakeSearchOrdersUseCase', () => {
   beforeEach(() => {
@@ -39,26 +45,51 @@ describe('MakeSearchOrdersUseCase', () => {
       expect(typeof useCase.execute).toBe('function');
     });
 
-    it('should handle query parameters correctly', async () => {
+    it('should handle search with valid parameters', async () => {
       const useCase = MakeSearchOrdersUseCase.create();
       const mockQuery = { user_id: '1', page: '1' };
 
-      jest.spyOn(useCase, 'execute').mockResolvedValue([]);
+      const mockResponse = [
+        {
+          user_id: 1,
+          name: 'Test User',
+          orders: [],
+        },
+      ];
+
+      jest.spyOn(useCase, 'execute').mockResolvedValue(mockResponse);
 
       const result = await useCase.execute(mockQuery);
 
-      expect(result).toEqual([]);
+      expect(result).toEqual(mockResponse);
     });
 
-    it('should handle empty query parameters', async () => {
+    it('should handle empty query', async () => {
       const useCase = MakeSearchOrdersUseCase.create();
       const mockQuery = {};
 
-      jest.spyOn(useCase, 'execute').mockResolvedValue([]);
+      const mockResponse: any[] = [];
+
+      jest.spyOn(useCase, 'execute').mockResolvedValue(mockResponse);
 
       const result = await useCase.execute(mockQuery);
 
-      expect(result).toEqual([]);
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should handle error for invalid parameters', async () => {
+      const useCase = MakeSearchOrdersUseCase.create();
+      const mockQuery = { invalid_param: 'value' };
+
+      jest
+        .spyOn(useCase, 'execute')
+        .mockRejectedValue(
+          new Error('Parâmetro(s) não permitido(s): invalid_param'),
+        );
+
+      await expect(useCase.execute(mockQuery)).rejects.toThrow(
+        'Parâmetro(s) não permitido(s): invalid_param',
+      );
     });
   });
-}); 
+});

@@ -1,8 +1,5 @@
-import { HttpRequest, HttpResponse } from '@/presentation/dto/http.dto';
+import { HttpRequest, HttpResponse } from '../dto/http.dto';
 
-export interface ControllerInterface<
-  TRequest = HttpRequest,
-  TResponse = HttpResponse,
-> {
-  handle(request: TRequest): Promise<TResponse>;
+export interface ControllerInterface {
+  handle(request: HttpRequest): Promise<HttpResponse>;
 }

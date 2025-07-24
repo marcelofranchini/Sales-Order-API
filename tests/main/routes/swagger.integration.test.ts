@@ -1,38 +1,44 @@
 import request from 'supertest';
 import express, { Express } from 'express';
-import { setupRoutes } from '@/main/routes/setup.route';
-import { corsMiddleware } from '@/main/middlewares/cors';
+import { setupRoutes } from '../../../src/main/routes/setup.route';
+import { corsMiddleware } from '../../../src/main/middlewares/cors';
 
-jest.mock('@/main/factories/useCases/healthcheck-use-case.make', () => ({
-  MakeHealthcheckUseCase: {
-    create: jest.fn(() => ({
-      execute: jest.fn().mockResolvedValue({
-        status: 'healthy',
-        timestamp: new Date().toISOString(),
-        uptime: 1000,
-        database: 'connected',
-      }),
-    })),
-  },
-}));
-
-jest.mock('@/main/factories/controllers/healthcheck-controller.make', () => ({
-  MakeHealthcheckController: {
-    create: jest.fn(() => ({
-      handle: jest.fn().mockResolvedValue({
-        statusCode: 200,
-        body: {
-          status: 'OK',
+jest.mock(
+  '../../../src/main/factories/useCases/healthcheck-use-case.make',
+  () => ({
+    MakeHealthcheckUseCase: {
+      create: jest.fn(() => ({
+        execute: jest.fn().mockResolvedValue({
+          status: 'healthy',
           timestamp: new Date().toISOString(),
-          app: 'salesorder-api',
-          version: '1.0.0',
-          environment: 'dev',
-          db: 'OK',
-        },
-      }),
-    })),
-  },
-}));
+          uptime: 1000,
+          database: 'connected',
+        }),
+      })),
+    },
+  }),
+);
+
+jest.mock(
+  '../../../src/main/factories/controllers/healthcheck-controller.make',
+  () => ({
+    MakeHealthcheckController: {
+      create: jest.fn(() => ({
+        handle: jest.fn().mockResolvedValue({
+          statusCode: 200,
+          body: {
+            status: 'OK',
+            timestamp: new Date().toISOString(),
+            app: 'salesorder-api',
+            version: '1.0.0',
+            environment: 'dev',
+            db: 'OK',
+          },
+        }),
+      })),
+    },
+  }),
+);
 
 describe('Swagger Integration Tests', () => {
   let app: Express;
@@ -46,16 +52,17 @@ describe('Swagger Integration Tests', () => {
   describe('GET /api-docs', () => {
     it('should serve swagger documentation', async () => {
       const response = await request(app).get('/api-docs/');
-      
+
       expect(response.status).toBe(200);
-      expect(response.headers['content-type']).toContain('text/html');
+      expect(response.headers['content-type']).toContain('application/json');
     });
 
-    it('should return HTML content', async () => {
+    it('should return JSON content', async () => {
       const response = await request(app).get('/api-docs/');
-      
-      expect(response.text).toContain('<!DOCTYPE html>');
-      expect(response.text).toContain('swagger');
+
+      expect(response.body).toHaveProperty('openapi');
+      expect(response.body).toHaveProperty('info');
+      expect(response.body.info.title).toBe('Sales Order API');
     });
   });
-}); 
+});

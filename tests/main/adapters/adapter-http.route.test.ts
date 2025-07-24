@@ -1,6 +1,9 @@
-import { adaptExpressRoute } from '@/infra/adapters/http-express.adpter';
-import { ControllerInterface } from '@/presentation/interfaces/controller.interface';
-import { HttpRequest, HttpResponse } from '@/presentation/dto/http.dto';
+import { adaptExpressRoute } from '../../../src/infra/adapters/http-express.adpter';
+import { ControllerInterface } from '../../../src/presentation/interfaces/controller.interface';
+import {
+  HttpRequest,
+  HttpResponse,
+} from '../../../src/presentation/dto/http.dto';
 
 describe('adaptExpressRoute', () => {
   let mockController: jest.Mocked<ControllerInterface>;
@@ -66,6 +69,8 @@ describe('adaptExpressRoute', () => {
 
     expect(mockController.handle).toHaveBeenCalled();
     expect(mockResponse.status).toHaveBeenCalledWith(500);
-    expect(mockResponse.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      error: 'Internal server error',
+    });
   });
 });

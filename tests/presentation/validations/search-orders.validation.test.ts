@@ -1,4 +1,4 @@
-import { SearchOrdersValidation } from '@/presentation/validations/search-orders.validation';
+import { SearchOrdersValidation } from '../../../src/presentation/validations/search-orders.validation';
 import { Request } from 'express';
 
 describe('SearchOrdersValidation', () => {
@@ -65,7 +65,9 @@ describe('SearchOrdersValidation', () => {
 
       expect(() => {
         SearchOrdersValidation.validate(mockRequest as Request);
-      }).toThrow('Parâmetro(s) não permitido(s): invalid_param1, invalid_param2');
+      }).toThrow(
+        'Parâmetro(s) não permitido(s): invalid_param1, invalid_param2',
+      );
     });
 
     it('should throw error for non-numeric order_id', () => {
@@ -139,4 +141,4 @@ describe('SearchOrdersValidation', () => {
       }).not.toThrow();
     });
   });
-}); 
+});

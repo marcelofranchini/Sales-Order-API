@@ -18,7 +18,7 @@ describe('dotenv configuration', () => {
     const mockResolve = resolve as jest.MockedFunction<typeof resolve>;
     mockResolve.mockReturnValue('/path/to/.env');
 
-    require('@/main/config/dotenv');
+    require('../../../src/main/config/dotenv');
 
     expect(config).toHaveBeenCalledWith({ path: '/path/to/.env' });
     expect(mockResolve).toHaveBeenCalledWith(process.cwd(), '.env');
@@ -32,7 +32,7 @@ describe('dotenv configuration', () => {
     pathModule.resolve.mockReturnValue('/test/path/.env');
 
     const dotenvModule = require('dotenv');
-    require('@/main/config/dotenv');
+    require('../../../src/main/config/dotenv');
 
     expect(dotenvModule.config).toHaveBeenCalledWith({
       path: '/test/path/.env',

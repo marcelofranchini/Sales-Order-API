@@ -1,4 +1,9 @@
-import { ProductDto, OrderDto, UserDto, UploadOrdersResponseDto } from '@/presentation/dto/order.dto';
+import {
+  ProductDto,
+  OrderDto,
+  UserDto,
+  UploadOrdersResponseDto,
+} from '../../../src/presentation/dto/order.dto';
 
 describe('Order DTOs', () => {
   describe('ProductDto', () => {
@@ -147,7 +152,9 @@ describe('Order DTOs', () => {
         skippedOrders: 0,
       };
 
-      expect(response.message).toBe('Arquivo TXT processado e salvo no MongoDB com sucesso');
+      expect(response.message).toBe(
+        'Arquivo TXT processado e salvo no MongoDB com sucesso',
+      );
       expect(response.fileName).toBe('test.txt');
       expect(response.fileSize).toBe(100);
       expect(response.lines).toBe(10);
@@ -189,4 +196,4 @@ describe('Order DTOs', () => {
       expect(response.skippedOrders).toBe(50);
     });
   });
-}); 
+});

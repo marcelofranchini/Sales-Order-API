@@ -1,4 +1,8 @@
-import { Environment, isDevelopment, isProduction } from '@/main/config/environment';
+import {
+  Environment,
+  isDevelopment,
+  isProduction,
+} from '../../../src/main/config/environment';
 
 describe('Environment', () => {
   const originalEnv = process.env;
@@ -21,7 +25,7 @@ describe('Environment', () => {
       process.env.npm_package_version = '2.0.0';
 
       jest.resetModules();
-      const { Environment } = require('@/main/config/environment');
+      const { Environment } = require('../../../src/main/config/environment');
 
       expect(Environment.MONGODB_URI).toBe('mongodb://test:27017/test');
       expect(Environment.PORT).toBe(3001);
@@ -38,7 +42,7 @@ describe('Environment', () => {
       delete process.env.npm_package_version;
 
       jest.resetModules();
-      const { Environment } = require('@/main/config/environment');
+      const { Environment } = require('../../../src/main/config/environment');
 
       expect(Environment.MONGODB_URI).toBe('mongodb://localhost:27017/sales');
       expect(Environment.PORT).toBe(3000);
@@ -51,7 +55,7 @@ describe('Environment', () => {
       process.env.PORT = '8080';
 
       jest.resetModules();
-      const { Environment } = require('@/main/config/environment');
+      const { Environment } = require('../../../src/main/config/environment');
 
       expect(Environment.PORT).toBe(8080);
       expect(typeof Environment.PORT).toBe('number');
@@ -66,7 +70,7 @@ describe('Environment', () => {
     it('should return true for isDevelopment when NODE_ENV is dev', () => {
       process.env.NODE_ENV = 'dev';
       jest.resetModules();
-      const { isDevelopment } = require('@/main/config/environment');
+      const { isDevelopment } = require('../../../src/main/config/environment');
 
       expect(isDevelopment).toBe(true);
     });
@@ -74,7 +78,7 @@ describe('Environment', () => {
     it('should return false for isDevelopment when NODE_ENV is not dev', () => {
       process.env.NODE_ENV = 'prd';
       jest.resetModules();
-      const { isDevelopment } = require('@/main/config/environment');
+      const { isDevelopment } = require('../../../src/main/config/environment');
 
       expect(isDevelopment).toBe(false);
     });
@@ -82,7 +86,7 @@ describe('Environment', () => {
     it('should return true for isProduction when NODE_ENV is prd', () => {
       process.env.NODE_ENV = 'prd';
       jest.resetModules();
-      const { isProduction } = require('@/main/config/environment');
+      const { isProduction } = require('../../../src/main/config/environment');
 
       expect(isProduction).toBe(true);
     });
@@ -90,7 +94,7 @@ describe('Environment', () => {
     it('should return false for isProduction when NODE_ENV is not prd', () => {
       process.env.NODE_ENV = 'dev';
       jest.resetModules();
-      const { isProduction } = require('@/main/config/environment');
+      const { isProduction } = require('../../../src/main/config/environment');
 
       expect(isProduction).toBe(false);
     });

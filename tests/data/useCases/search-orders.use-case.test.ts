@@ -1,8 +1,8 @@
-import { SearchOrdersUseCaseImpl } from '@/data/useCases/search-orders.use-case';
-import { OrderRepository } from '@/domain/repositories/order-repository.interface';
-import { OrderAggregationService } from '@/domain/services/order-aggregation.service.interface';
-import { UserDto } from '@/presentation/dto/order.dto';
-import { OrderDocument } from '@/domain/repositories/order-repository.interface';
+import { SearchOrdersUseCaseImpl } from '../../../src/data/useCases/search-orders.use-case';
+import { OrderRepository } from '../../../src/domain/repositories/order-repository.interface';
+import { OrderAggregationService } from '../../../src/domain/services/order-aggregation.service.interface';
+import { UserDto } from '../../../src/presentation/dto/order.dto';
+import { OrderDocument } from '../../../src/domain/repositories/order-repository.interface';
 
 describe('SearchOrdersUseCaseImpl', () => {
   let searchOrdersUseCase: SearchOrdersUseCaseImpl;
@@ -34,7 +34,9 @@ describe('SearchOrdersUseCaseImpl', () => {
   describe('execute', () => {
     it('should search orders with valid parameters', async () => {
       const mockQuery = { user_id: '1', page: '1' };
-      const mockDocuments: OrderDocument[] = [{ user_id: 1, name: 'Test User' } as OrderDocument];
+      const mockDocuments: OrderDocument[] = [
+        { user_id: 1, name: 'Test User' } as OrderDocument,
+      ];
       const mockGroupedData: UserDto[] = [
         {
           user_id: 1,
@@ -160,7 +162,11 @@ describe('SearchOrdersUseCaseImpl', () => {
     });
 
     it('should not apply date filter when order_id is provided', async () => {
-      const mockQuery = { order_id: '1', start: '2024-01-01', end: '2024-01-31' };
+      const mockQuery = {
+        order_id: '1',
+        start: '2024-01-01',
+        end: '2024-01-31',
+      };
       const mockDocuments: OrderDocument[] = [];
       const mockGroupedData: UserDto[] = [];
 
@@ -176,7 +182,11 @@ describe('SearchOrdersUseCaseImpl', () => {
     });
 
     it('should not apply date filter when user_id is provided', async () => {
-      const mockQuery = { user_id: '1', start: '2024-01-01', end: '2024-01-31' };
+      const mockQuery = {
+        user_id: '1',
+        start: '2024-01-01',
+        end: '2024-01-31',
+      };
       const mockDocuments: OrderDocument[] = [];
       const mockGroupedData: UserDto[] = [];
 
@@ -240,4 +250,4 @@ describe('SearchOrdersUseCaseImpl', () => {
       );
     });
   });
-}); 
+});

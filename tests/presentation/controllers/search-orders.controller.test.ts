@@ -1,7 +1,7 @@
-import { SearchOrdersController } from '@/presentation/controllers/search-orders.controller';
-import { SearchOrdersUseCase } from '@/domain/useCases/search-orders.usecase.interface';
-import { HttpRequest } from '@/presentation/dto/http.dto';
-import { UserDto } from '@/presentation/dto/order.dto';
+import { SearchOrdersController } from '../../../src/presentation/controllers/search-orders.controller';
+import { SearchOrdersUseCase } from '../../../src/domain/useCases/search-orders.usecase.interface';
+import { HttpRequest } from '../../../src/presentation/dto/http.dto';
+import { UserDto } from '../../../src/presentation/dto/order.dto';
 
 describe('SearchOrdersController', () => {
   let searchOrdersController: SearchOrdersController;
@@ -12,7 +12,9 @@ describe('SearchOrdersController', () => {
       execute: jest.fn(),
     };
 
-    searchOrdersController = new SearchOrdersController(mockSearchOrdersUseCase);
+    searchOrdersController = new SearchOrdersController(
+      mockSearchOrdersUseCase,
+    );
   });
 
   afterEach(() => {
@@ -36,7 +38,9 @@ describe('SearchOrdersController', () => {
 
       mockSearchOrdersUseCase.execute.mockResolvedValue(mockResult);
 
-      const result = await searchOrdersController.handle(mockRequest as HttpRequest);
+      const result = await searchOrdersController.handle(
+        mockRequest as HttpRequest,
+      );
 
       expect(mockSearchOrdersUseCase.execute).toHaveBeenCalledWith({
         user_id: '1',
@@ -56,7 +60,9 @@ describe('SearchOrdersController', () => {
 
       mockSearchOrdersUseCase.execute.mockResolvedValue(mockResult);
 
-      const result = await searchOrdersController.handle(mockRequest as HttpRequest);
+      const result = await searchOrdersController.handle(
+        mockRequest as HttpRequest,
+      );
 
       expect(mockSearchOrdersUseCase.execute).toHaveBeenCalledWith({});
       expect(result.statusCode).toBe(200);
@@ -85,7 +91,9 @@ describe('SearchOrdersController', () => {
 
       mockSearchOrdersUseCase.execute.mockResolvedValue(mockResult);
 
-      const result = await searchOrdersController.handle(mockRequest as HttpRequest);
+      const result = await searchOrdersController.handle(
+        mockRequest as HttpRequest,
+      );
 
       expect(mockSearchOrdersUseCase.execute).toHaveBeenCalledWith({
         user_id: '1',
@@ -107,7 +115,9 @@ describe('SearchOrdersController', () => {
       const error = new Error('Parâmetro(s) não permitido(s): invalid_param');
       mockSearchOrdersUseCase.execute.mockRejectedValue(error);
 
-      const result = await searchOrdersController.handle(mockRequest as HttpRequest);
+      const result = await searchOrdersController.handle(
+        mockRequest as HttpRequest,
+      );
 
       expect(result.statusCode).toBe(400);
       expect(result.body).toEqual({
@@ -124,7 +134,9 @@ describe('SearchOrdersController', () => {
       const error = new Error('Database connection failed');
       mockSearchOrdersUseCase.execute.mockRejectedValue(error);
 
-      const result = await searchOrdersController.handle(mockRequest as HttpRequest);
+      const result = await searchOrdersController.handle(
+        mockRequest as HttpRequest,
+      );
 
       expect(result.statusCode).toBe(500);
       expect(result.body).toEqual({
@@ -142,7 +154,9 @@ describe('SearchOrdersController', () => {
 
       mockSearchOrdersUseCase.execute.mockResolvedValue(mockResult);
 
-      const result = await searchOrdersController.handle(mockRequest as HttpRequest);
+      const result = await searchOrdersController.handle(
+        mockRequest as HttpRequest,
+      );
 
       expect(mockSearchOrdersUseCase.execute).toHaveBeenCalledWith({});
       expect(result.statusCode).toBe(200);
@@ -159,11 +173,13 @@ describe('SearchOrdersController', () => {
 
       mockSearchOrdersUseCase.execute.mockResolvedValue(mockResult);
 
-      const result = await searchOrdersController.handle(mockRequest as HttpRequest);
+      const result = await searchOrdersController.handle(
+        mockRequest as HttpRequest,
+      );
 
       expect(mockSearchOrdersUseCase.execute).toHaveBeenCalledWith({});
       expect(result.statusCode).toBe(200);
       expect(result.body).toEqual(mockResult);
     });
   });
-}); 
+});

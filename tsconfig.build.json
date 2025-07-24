@@ -3,18 +3,7 @@
   "compilerOptions": {
     "noEmit": false,
     "rootDir": "./src",
-    "outDir": "./dist",
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"],
-      "@/domain/*": ["./src/domain/*"],
-      "@/infra/*": ["./src/infra/*"],
-      "@/application/*": ["./src/application/*"],
-      "@/presentation/*": ["./src/presentation/*"],
-      "@/main/*": ["./src/main/*"],
-      "@/shared/*": ["./src/shared/*"],
-      "@/tests/*": ["./tests/*"]
-    }
+    "outDir": "./dist"
   },
   "include": ["src/**/*"],
   "exclude": ["tests/**/*", "node_modules", "dist"]

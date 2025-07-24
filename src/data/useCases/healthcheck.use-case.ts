@@ -1,6 +1,6 @@
-import { DatabaseConnectionInterface } from '@/domain/contracts/database-connection.interface';
-import { HealthStatusInterface } from '@/domain/contracts/healthcheck-status.interface';
-import { HealthCheckUseCaseInterface } from '@/domain/useCases/healthcheck.usecase.interface';
+import { DatabaseConnectionInterface } from '../../domain/contracts/database-connection.interface';
+import { HealthStatusInterface } from '../../domain/contracts/healthcheck-status.interface';
+import { HealthCheckUseCaseInterface } from '../../domain/useCases/healthcheck.usecase.interface';
 
 export class HealthCheckUseCase implements HealthCheckUseCaseInterface {
   constructor(private readonly mongoConnection: DatabaseConnectionInterface) {}
@@ -10,12 +10,28 @@ export class HealthCheckUseCase implements HealthCheckUseCaseInterface {
       throw new Error('Database connection not available');
     }
 
-    const connected = this.mongoConnection.isConnected();
+    try {
+      const connected = this.mongoConnection.isConnected();
 
-    if (!connected) {
-      throw new Error('MongoDB connection failed');
+      if (!connected) {
+        return {
+          status: 'FAIL',
+          db: 'FAIL',
+          timestamp: new Date().toISOString(),
+        };
+      }
+
+      return {
+        status: 'OK',
+        db: 'OK',
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error) {
+      return {
+        status: 'FAIL',
+        db: 'FAIL',
+        timestamp: new Date().toISOString(),
+      };
     }
-
-    return { status: 'OK', db: 'OK' };
   }
 }

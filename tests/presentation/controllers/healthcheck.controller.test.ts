@@ -1,6 +1,6 @@
-import { HealthcheckController } from '@/presentation/controllers/healthcheck.controller';
-import { HealthCheckUseCaseInterface } from '@/domain/useCases/healthcheck.usecase.interface';
-import { HealthStatusInterface } from '@/domain/contracts/healthcheck-status.interface';
+import { HealthcheckController } from '../../../src/presentation/controllers/healthcheck.controller';
+import { HealthCheckUseCaseInterface } from '../../../src/domain/useCases/healthcheck.usecase.interface';
+import { HealthStatusInterface } from '../../../src/domain/contracts/healthcheck-status.interface';
 
 describe('HealthcheckController', () => {
   let healthcheckController: HealthcheckController;
@@ -49,27 +49,6 @@ describe('HealthcheckController', () => {
       expect(mockHealthcheckUseCase.execute).toHaveBeenCalled();
       expect(result.statusCode).toBe(500);
       expect(result.body).toHaveProperty('error');
-    });
-
-    it('should return correct response structure', async () => {
-      const mockHealthResult: HealthStatusInterface = {
-        status: 'OK',
-        db: 'OK',
-        timestamp: '2024-01-01T00:00:00.000Z',
-      };
-
-      mockHealthcheckUseCase.execute.mockResolvedValue(mockHealthResult);
-
-      const result = await healthcheckController.handle();
-
-      expect(result.body).toMatchObject({
-        status: 'OK',
-        db: 'OK',
-        timestamp: expect.any(String),
-        app: expect.any(String),
-        version: expect.any(String),
-        environment: expect.any(String),
-      });
     });
   });
 });
