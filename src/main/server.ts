@@ -16,7 +16,6 @@ async function connectDatabase() {
 }
 
 async function startServer() {
-  console.log(`MongoDB Environment: ${Environment.MONGODB_URI}`);
   await connectDatabase();
 
   app = express();
@@ -28,17 +27,13 @@ async function startServer() {
   server = app.listen(Environment.PORT, () => {
     console.log(`Server running on port ${Environment.PORT}`);
     console.log(`Environment: ${Environment.NODE_ENV}`);
-    console.log(
-      `Healthcheck: http://localhost:${Environment.PORT}/healthcheck`,
-    );
-    console.log(
-      `API Documentation: http://localhost:${Environment.PORT}/api-docs`,
-    );
+    console.log(`Healthcheck: /healthcheck`);
+    console.log(`API Documentation: /api-docs`);
   });
 }
 
 startServer().catch((error) => {
-  console.error('❌ Failed to start server:', error);
+  console.error('Failed to start server:', error);
   process.exit(1);
 });
 

@@ -1,10 +1,19 @@
 import { Request, Response } from 'express';
-import { ControllerInterface } from '../../presentation/interfaces/controller.interface';
-import { HttpRequest, HttpResponse } from '../../presentation/dto/http.dto';
+import { ControllerInterface } from '@/presentation/interfaces/controller.interface';
+import { HttpRequest } from '@/presentation/dto/http.dto';
 
-export function adaptExpressRoute(controller: ControllerInterface) {
+type ValidationFn = (req: Request) => void;
+
+export function adaptExpressRoute(
+  controller: ControllerInterface,
+  validate?: ValidationFn,
+) {
   return async (req: Request, res: Response): Promise<void> => {
     try {
+      if (validate) {
+        validate(req);
+      }
+
       const httpRequest: HttpRequest = {
         body: req.body,
         params: req.params,
@@ -15,12 +24,15 @@ export function adaptExpressRoute(controller: ControllerInterface) {
         statusCode: res.status,
       };
 
-      const httpResponse: HttpResponse = await controller.handle(httpRequest);
-
+      const httpResponse = await controller.handle(httpRequest);
       res.status(httpResponse.statusCode).json(httpResponse.body);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Route adapter error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+
+      const status = error?.statusCode ?? 500;
+      const message = error?.message ?? 'Internal server error';
+
+      res.status(status).json({ error: message });
     }
   };
 }

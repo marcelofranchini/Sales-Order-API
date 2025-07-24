@@ -14,7 +14,6 @@ export class SearchOrdersController implements ControllerInterface {
         body: result,
       };
     } catch (error) {
-      console.error('SearchOrdersController error:', error);
       if (error instanceof Error) {
         if (error.message.includes('Parâmetro(s) não permitido(s)')) {
           return {
